@@ -1,249 +1,159 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Kelola Profil</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-:root{
-    --green:#16a34a;
-    --green-dark:#15803d;
-    --blue:#2563eb;
-    --red:#dc2626;
-    --gray:#555;
-    --bg:#eaf5ee;
-}
+    <title>Profile - ReDonate</title>
 
-body{
-    margin:0;
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-    background:var(--bg);
-}
+    @vite(['resources/css/profile.css', 'resources/js/profile.js'])
 
-.header{
-    height:60px;
-    background:white;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 30px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.05);
-}
-
-.logo{
-    font-weight:bold;
-    font-size:20px;
-    color:var(--green);
-}
-
-.user-mini{
-    font-size:14px;
-    color:#333;
-}
-
-.container{
-    display:flex;
-    height:calc(100vh - 60px);
-}
-
-.sidebar{
-    width:280px;
-    background:#d4f3dc;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-}
-
-.sidebar img{
-    width:120px;
-    height:120px;
-    border-radius:50%;
-    object-fit:cover;
-    margin-bottom:15px;
-}
-
-.badge{
-    padding:6px 14px;
-    border-radius:20px;
-    font-size:12px;
-    color:#fff;
-    margin-top:6px;
-}
-
-.role{ background:var(--green); }
-.active{ background:var(--blue); }
-.off{ background:var(--red); }
-
-.content{
-    flex:1;
-    padding:40px;
-}
-
-.card{
-    background:#fff;
-    padding:30px;
-    border-radius:16px;
-    max-width:600px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.08);
-}
-
-input, textarea{
-    width:100%;
-    padding:12px;
-    margin-top:6px;
-    margin-bottom:14px;
-    border:none;
-    background:#f4f4f4;
-    border-radius:8px;
-    transition:0.2s;
-}
-
-input:focus, textarea:focus{
-    outline:none;
-    background:#e8f5ec;
-}
-
-button{
-    padding:12px;
-    border:none;
-    border-radius:10px;
-    cursor:pointer;
-    transition:0.2s;
-    font-weight:600;
-}
-
-.btn-green{
-    background:var(--green);
-    color:white;
-}
-.btn-green:hover{
-    background:var(--green-dark);
-}
-
-.btn-red{
-    background:var(--red);
-    color:white;
-}
-.btn-red:hover{
-    opacity:0.85;
-}
-
-.btn-gray{
-    background:var(--gray);
-    color:white;
-}
-.btn-gray:hover{
-    opacity:0.85;
-}
-
-.row{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-}
-
-.alert{
-    padding:12px;
-    border-radius:8px;
-    margin-bottom:15px;
-    background:#d4edda;
-    color:#155724;
-}
-</style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
 
-<div class="header">
-    <div class="logo">ReDonate</div>
-    <div class="user-mini">
-        {{ $user->name }} ({{ $user->role }})
+<div class="profile-container">
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo">ReDonate</div>
+
+        <div class="header-actions">
+            <div class="user-info">
+                <img src="{{ asset('storage/'.$user->photo_url) }}" class="user-avatar-sm">
+                <span>{{ $user->name }}</span>
+            </div>
+        </div>
     </div>
-</div>
 
-<div class="container">
+    <!-- MAIN -->
+    <div class="main-content">
 
-    <div class="sidebar">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
 
-        @if($user->photo)
-            <img src="{{ asset('profile/'.$user->photo) }}">
-        @else
-            <img src="https://via.placeholder.com/120">
-        @endif
+            <h2 class="profile-name">{{ $user->name }}</h2>
+            <p class="profile-email">{{ $user->email }}</p>
 
-        <h3>{{ $user->name }}</h3>
-        <p>{{ $user->email }}</p>
+            <div class="status-badges">
+                <span class="badge badge-role">{{ $user->role }}</span>
+                <span class="badge {{ $user->is_active ? 'badge-active' : 'badge-inactive' }}">
+                    {{ $user->is_active ? 'AKTIF' : 'NONAKTIF' }}
+                </span>
+            </div>
 
-        <div class="badge role">
-            {{ strtoupper($user->role) }}
         </div>
 
-        @if($user->is_active)
-            <div class="badge active">AKTIF</div>
-        @else
-            <div class="badge off">NONAKTIF</div>
-        @endif
+        <!-- CONTENT -->
+        <div class="profile-main">
 
-    </div>
+            <!-- EDIT PROFILE -->
+            <div class="profile-card">
 
-    <div class="content">
+                <h2 class="profile-title">Edit Profil</h2>
+                <p class="profile-subtitle">Perbarui data akun kamu</p>
 
-        <div class="card">
+                @if(session('success'))
+                    <div class="alert-success">
+                        ✅ {{ session('success') }}
+                    </div>
+                @endif
 
-            <h2>Kelola Profil</h2>
-
-            @if(session('success'))
-                <div class="alert">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-
-                <label>Nama</label>
-                <input type="text" name="name" value="{{ $user->name }}">
-
-                <label>Email</label>
-                <input type="email" name="email" value="{{ $user->email }}">
-
-                <label>No HP</label>
-                <input type="text" name="phone" value="{{ $user->phone }}">
-
-                <label>Alamat</label>
-                <textarea name="address">{{ $user->address }}</textarea>
-
-                <label>Foto Profil</label>
-                <input type="file" name="photo">
-
-                <button class="btn-green">Update Profil</button>
-            </form>
-
-            <br>
-
-            <div class="row">
-
-                <form action="/profile/deactivate" method="POST">
+                <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
-                    <button class="btn-gray">Deaktivasi</button>
+
+                    <!-- FOTO PROFILE -->
+                    <div class="profile-avatar" style="margin-bottom:2rem;">
+                        <img id="previewImage" src="{{ asset('storage/'.$user->photo_url) }}">
+
+                        <label class="upload-photo">
+                            <i class="fa-solid fa-camera"></i>
+                            <input type="file" id="photo" name="photo" hidden>
+                        </label>
+                    </div>
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label class="form-label">Nama</label>
+                            <input type="text" name="name" value="{{ $user->name }}" class="form-input">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" value="{{ $user->email }}" class="form-input">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">No HP</label>
+                            <input type="text" name="phone" value="{{ $user->phone }}" class="form-input">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Password Baru</label>
+                            <input type="password" name="password" class="form-input">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label">Alamat</label>
+                            <textarea name="address" class="form-textarea">{{ $user->address }}</textarea>
+                        </div>
+
+                    </div>
+
+                    <div class="action-section">
+                        <button type="submit" class="btn btn-update">
+                            💾 Simpan Perubahan
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+            <!-- DANGER ZONE -->
+            <div class="profile-card danger">
+
+                <h2 class="profile-title" style="color:#dc2626;">Danger Zone</h2>
+                <p class="profile-subtitle">Aksi permanen pada akun</p>
+
+                <!-- DEACTIVATE -->
+                <form method="POST" action="{{ route('profile.deactivate') }}">
+                    @csrf
+
+                    <input type="password" name="confirm_password" placeholder="Password" class="form-input" required>
+
+                    <div class="action-section">
+                        <button type="submit" class="btn btn-deactivate">
+                            🚫 Nonaktifkan Akun
+                        </button>
+                    </div>
                 </form>
 
-                <form action="/profile/delete" method="POST">
+                <!-- DELETE -->
+                <form method="POST" action="{{ route('profile.destroy') }}">
                     @csrf
                     @method('DELETE')
-                    <button class="btn-red">Hapus</button>
+
+                    <input type="password" name="confirm_password" placeholder="Password" class="form-input" required>
+
+                    <div class="action-section">
+                        <button type="submit" class="btn btn-delete">
+                            🗑 Hapus Akun
+                        </button>
+                    </div>
                 </form>
 
-                <form action="{{ route('logout') }}" method="POST">
+                <!-- LOGOUT -->
+                <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button onclick="return confirm('Yakin logout?')" class="btn-red">
-                        Logout
-                    </button>
+
+                    <div class="action-section">
+                        <button type="submit" class="btn btn-logout">
+                            🚪 Logout
+                        </button>
+                    </div>
                 </form>
 
             </div>

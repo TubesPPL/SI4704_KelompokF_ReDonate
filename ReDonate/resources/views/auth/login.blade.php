@@ -1,150 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Login ReDonate</title>
-
-<style>
-body{
-margin:0;
-font-family:Arial;
-background:#d8e9df;
-display:flex;
-height:100vh;
-}
-
-/* kiri */
-.left{
-flex:1;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-text-align:center;
-}
-
-.logo{
-font-size:70px;
-color:#16a34a;
-}
-
-.title{
-font-size:30px;
-font-weight:bold;
-}
-
-.subtitle{
-margin-bottom:20px;
-color:#555;
-}
-
-.box{
-background:#cfe3d6;
-padding:20px;
-border-radius:12px;
-width:300px;
-}
-
-/* kanan */
-.right{
-flex:1;
-display:flex;
-justify-content:center;
-align-items:center;
-}
-
-.card{
-background:#fff;
-padding:40px;
-border-radius:16px;
-width:350px;
-box-shadow:0 10px 20px rgba(0,0,0,0.1);
-}
-
-input{
-width:100%;
-padding:12px;
-margin-bottom:15px;
-border:none;
-background:#f3f3f3;
-border-radius:8px;
-}
-
-button{
-width:100%;
-padding:12px;
-background:#16a34a;
-color:#fff;
-border:none;
-border-radius:10px;
-cursor:pointer;
-}
-
-button:hover{
-background:#15803d;
-}
-
-.row{
-display:flex;
-justify-content:space-between;
-font-size:13px;
-margin-bottom:15px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ReDonate</title>
+    <meta name="description" content="Platform Donasi Barang Layak Pakai">
+    @vite(['resources/css/auth.css', 'resources/js/auth.js'])
 </head>
-
 <body>
-
-<div class="left">
-<div class="logo">❤</div>
-<div class="title">ReDonate</div>
-<div class="subtitle">Platform Donasi Barang Layak Pakai</div>
-
-<div class="box">
-Bergabunglah dengan ribuan orang berbagi kebaikan melalui donasi barang berkualitas.
-</div>
-</div>
-
-<div class="right">
-<div class="card">
-
-<h2>Login</h2>
-<p>Masuk ke akun Anda untuk melanjutkan</p>
-
-@if(session('success'))
-    <div style="background:#d4edda;padding:10px;border-radius:5px;color:#155724;margin-bottom:10px;">
-        {{ session('success') }}
+<div class="container">
+    <!-- Left Hero -->
+    <div class="left">
+        <div class="logo">❤</div>
+        <h1 class="title">ReDonate</h1>
+        <p class="subtitle">
+            Platform Donasi Barang Layak Pakai. <br>
+            <strong>Bergabunglah dengan ribuan orang berbagi kebaikan</strong>
+        </p>
+        <div class="hero-box">
+            Donasi barang berkualitas untuk mereka yang membutuhkan. 
+            Satu klik, satu kebaikan.
+        </div>
     </div>
-@endif
 
-@if(session('error'))
-    <div style="background:#f8d7da;padding:10px;border-radius:5px;color:#721c24;margin-bottom:10px;">
-        {{ session('error') }}
+    <!-- Right Form -->
+    <div class="right">
+        <div class="auth-card">
+            <h2>Masuk ke Akun</h2>
+            <p>Selamat datang kembali! Masukkan kredensial Anda</p>
+
+            <!-- Flash Messages -->
+            @if(session('success'))
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('login') }}" id="loginForm" novalidate>
+                @csrf
+                
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="masukkan@email.com"
+                        value="{{ old('email') }}"
+                        required
+                        aria-describedby="email-error"
+                        class="{{ $errors->has('email') ? 'error' : '' }}"
+                    >
+                    @error('email')
+                        <div id="email-error" class="error-message">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="••••••••"
+                        required
+                        aria-describedby="password-error"
+                        class="{{ $errors->has('password') ? 'error' : '' }}"
+                    >
+                    @error('password')
+                        <div id="password-error" class="error-message">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Remember -->
+                <div class="remember-row">
+                    <label>
+                        <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
+                        Ingat saya
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="loginBtn" class="btn-primary">
+                    <span class="btn-text">Masuk ke Akun</span>
+                    <span class="loading" id="loadingSpinner" style="display: none;"></span>
+                </button>
+            </form>
+
+            <!-- Register Link -->
+            <div class="link-row">
+                Belum punya akun? 
+                <a href="{{ route('register') }}">Buat Akun Baru</a>
+            </div>
+        </div>
     </div>
-@endif
-
-<form method="POST" action="{{ route('login') }}">
-@csrf
-
-<input type="email" name="email" placeholder="Email">
-
-<input type="password" name="password" placeholder="Password">
-
-<div class="row">
-<label><input type="checkbox"> Ingat saya</label>
-<a href="#">Lupa password?</a>
 </div>
 
-<button type="submit">Login</button>
-
-</form>
-
-<p style="text-align:center;margin-top:15px;">
-Belum punya akun? <a href="{{ route('register') }}">Register</a>
-</p>
-
-</div>
-</div>
-
+{{-- Font Awesome --}}
+<script src="https://kit.fontawesome.com/your-kit.js" crossorigin="anonymous"></script>
 </body>
 </html>
