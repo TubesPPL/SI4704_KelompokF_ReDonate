@@ -29,4 +29,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function itemRequests()
+    {
+        return $this->hasMany(ItemRequest::class, 'requester_id');
+    }
 }
