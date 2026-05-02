@@ -8,6 +8,7 @@ class RequestItem extends Model
 {
     protected $fillable = [
         'user_id',
+        'item_id', 
         'title',
         'description',
         'category',
@@ -15,18 +16,23 @@ class RequestItem extends Model
         'status'
     ];
 
-    /**
-     * (biar otomatis pending)
-     */
+   // Pending otomatis
     protected $attributes = [
         'status' => 'pending'
     ];
 
-    /**
-     * Relasi ke user
-     */
+    
+    // Relasi ke user
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    
+     // Relasi ke item (Barang yang diminta)
+     
+    public function item()
+    {
+        return $this->belongsTo(Item::class, 'item_id', 'item_id');
     }
 }
