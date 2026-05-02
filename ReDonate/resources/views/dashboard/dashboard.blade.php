@@ -80,6 +80,16 @@
                 Lihat →
             </a>
         </div>
+
+        <!-- ✅ REQUEST BARANG (BARU) -->
+        <div class="action-card">
+            <h3>📥 Request Barang</h3>
+            <p>Ajukan permintaan barang yang dibutuhkan</p>
+
+            <a href="{{ route('request.create') }}">
+                Ajukan →
+            </a>
+        </div>
         @endif
 
         <!-- PROFILE -->

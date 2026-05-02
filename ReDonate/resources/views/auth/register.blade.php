@@ -27,7 +27,6 @@
     <div class="right">
         <div class="auth-card register-card">
             <h2>Buat Akun Baru</h2>
-            <p>Pilih role Anda dan lengkapi data untuk memulai</p>
 
             <!-- Flash Messages -->
             @if(session('success'))
@@ -120,26 +119,15 @@
                 <div class="form-group">
                     <label>Role Pengguna *</label>
                     <div class="role-group">
-                        <label class="role-option">
-                            <input type="radio" name="role" value="donatur" id="role-donatur" 
-                                   {{ old('role') == 'donatur' ? 'checked' : '' }} required>
-                            <span class="role-label">Donatur</span>
-                            <span class="role-description">Donasi barang</span>
-                        </label>
-
-                        <label class="role-option">
-                            <input type="radio" name="role" value="penerima" id="role-penerima"
-                                   {{ old('role') == 'penerima' ? 'checked' : '' }}>
-                            <span class="role-label">Penerima</span>
-                            <span class="role-description">Menerima bantuan</span>
-                        </label>
 
                         <label class="role-option">
                             <input type="radio" name="role" value="both" id="role-both"
-                                   {{ old('role') != 'donatur' && old('role') != 'penerima' ? 'checked' : '' }}>
-                            <span class="role-label">Keduanya</span>
+                                {{ old('role', 'both') == 'both' ? 'checked' : '' }} required>
+
+                            <span class="role-label">Donatur & Penerima</span>
                             <span class="role-description">Donasi & terima bantuan</span>
                         </label>
+
                     </div>
                     @error('role')
                         <div class="error-message">{{ $message }}</div>
