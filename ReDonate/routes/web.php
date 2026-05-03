@@ -45,6 +45,21 @@ Route::middleware('auth')->group(function () {
     Route::post('/request', [RequestItemController::class, 'store'])
         ->name('request.store');
 
+    // ========================================
+    //       PANEL DONATUR (PBI 17 - 20)
+    // ========================================
+    Route::get('/donatur/requests', [RequestItemController::class, 'donaturRequests'])
+        ->name('donatur.requests.index');
+        
+    Route::patch('/donatur/requests/{id}/approve', [RequestItemController::class, 'approve'])
+        ->name('donatur.requests.approve');
+        
+    Route::patch('/donatur/requests/{id}/reject', [RequestItemController::class, 'reject'])
+        ->name('donatur.requests.reject');
+        
+    Route::delete('/donatur/requests/clear', [RequestItemController::class, 'clearHistory'])
+        ->name('donatur.requests.clear');
+
 
     // ========================================
     //                  PROFILE
