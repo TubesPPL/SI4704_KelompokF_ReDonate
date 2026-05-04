@@ -61,6 +61,22 @@ Route::middleware('auth')->group(function () {
         ->name('donatur.requests.clear');
 
 
+
+    // PBI #14: Menampilkan daftar permintaan
+    Route::get('/my-requests', [ItemRequestController::class, 'index'])->name('requests.index');
+
+    // PBI #13: Mekanisme pembuatan permintaan barang
+    Route::get('/items/{item}/request', [ItemRequestController::class, 'create'])->name('requests.create');
+    Route::post('/items/{item}/request', [ItemRequestController::class, 'store'])->name('requests.store');
+
+    // PBI #15: Memperbarui preferensi (Edit Request)
+    Route::get('/requests/{requestItem}/edit', [ItemRequestController::class, 'edit'])->name('requests.edit');
+    Route::put('/requests/{requestItem}', [ItemRequestController::class, 'update'])->name('requests.update');
+
+    // PBI #16: Mekanisme pembatalan permintaan
+    Route::patch('/requests/{requestItem}/cancel', [ItemRequestController::class, 'cancel'])->name('requests.cancel');
+
+
     // ========================================
     //                  PROFILE
     // ========================================
