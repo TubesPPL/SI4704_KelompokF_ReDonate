@@ -9,7 +9,6 @@ class RequestItem extends Model
 {
     use HasFactory;
 
-    // Arahkan ke nama tabel yang benar
     protected $table = 'request';
 
     protected $fillable = [

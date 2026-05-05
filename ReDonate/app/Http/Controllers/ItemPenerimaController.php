@@ -38,7 +38,6 @@ class ItemPenerimaController extends Controller
             'pickup_method' => $request->pickup_method,
         ]);
 
-        // Opsional: Ubah status barang menjadi requested
         $item->update(['status' => 'requested']);
 
         return redirect()->route('requests.index')->with('success', 'Permintaan barang berhasil diajukan!');
@@ -74,7 +73,6 @@ class ItemPenerimaController extends Controller
 
         $requestItem->update(['status' => 'cancelled']);
         
-        // Kembalikan status barang menjadi available
         $requestItem->item->update(['status' => 'available']);
 
         return redirect()->route('requests.index')->with('success', 'Permintaan berhasil dibatalkan.');
