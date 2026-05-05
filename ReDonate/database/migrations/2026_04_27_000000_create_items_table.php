@@ -6,26 +6,32 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('items', function (Blueprint $table) {
-            $table->id('item_id');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('category_id')->constrained('categories', 'category_id')->onDelete('restrict');
-            $table->unsignedBigInteger('event_id')->nullable();   
-            $table->string('item_name', 150);
-            $table->text('description');
-            $table->enum('condition', ['baru', 'sangat baik', 'baik', 'cukup baik']);
-            $table->string('image_url', 500)->nullable();
-            $table->enum('status', ['available', 'requested', 'completed'])->default('available');
+            $table->id();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            
+            // Foreign key merujuk ke kolom 'id' di tabel 'categories'
+            $table->foreignId('category_id')->constrained('categories')->cascadeOnDelete(); 
+            
+            $table->unsignedBigInteger('event_id')->nullable(); 
+            $table->string('item_name');
+            $table->text('description')->nullable();
+            $table->string('condition'); 
+            $table->string('image_url')->nullable();
+            $table->string('status')->default('available'); 
             $table->timestamps();
-            $table->softDeletes(); 
-
-            $table->index(['status', 'created_at']);
-            $table->index('user_id');
+            $table->softDeletes(); // Untuk mendukung kolom deleted_at
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('items');
