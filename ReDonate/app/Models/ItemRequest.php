@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ItemRequest extends Model
 {
-    // Tetap dideklarasikan karena nama tabelnya 'requests', bukan default 'item_requests'
-    protected $table = 'requests'; 
+    // Tetap dideklarasikan karena nama tabelnya 'request', bukan default 'item_requests'
+    protected $table = 'request'; 
 
     protected $fillable = [
         'item_id', 

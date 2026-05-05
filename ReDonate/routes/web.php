@@ -1,15 +1,13 @@
 <?php
 
-<<<<<<< HEAD
 use Illuminate\Http\Request;
-=======
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RequestItemController;
->>>>>>> d509f52a9616b5a55d2155d2ef7b4614306d552f
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemRequestController;
+use App\Http\Controllers\ItemPenerimaController;
+use Illuminate\Support\Facades\Route;
 
 // ========================================
 //              PUBLIC ROUTES
@@ -23,7 +21,6 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
 });
 
-<<<<<<< HEAD
 Route::middleware('auth:sanctum')->group(function () {
 
     // PBI #14: Menampilkan daftar seluruh permintaan yang pernah diajukan
@@ -38,10 +35,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // PBI #16: Mekanisme pembatalan permintaan oleh penerima
     // Menggunakan PATCH juga karena kita hanya mengubah statusnya saja
-    Route::patch('/requests/{id}/cancel', [ItemRequestController::class, 'cancel']);
+    // Route::patch('/requests/{id}/cancel', [ItemRequestController::class, 'cancel']);
 
 });
-=======
 
 // ========================================
 //              AUTH ROUTES
@@ -59,6 +55,23 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/donatur', [DashboardController::class, 'donatur'])
         ->name('dashboard.donatur');
 
+
+    // ========================================
+    //               PENERIMAAN BARANG
+    // ========================================
+    // PBI #14: Menampilkan daftar permintaan
+    Route::get('/my-requests', [ItemPenerimaController::class, 'index'])->name('requests.index');
+
+    // PBI #13: Mekanisme pembuatan permintaan barang
+    Route::get('/items/{item}/request', [ItemPenerimaController::class, 'create'])->name('requests.create');
+    Route::post('/items/{item}/request', [ItemPenerimaController::class, 'store'])->name('requests.store');
+
+    // PBI #15: Memperbarui preferensi (Edit Request)
+    Route::get('/requests/{requestItem}/edit', [ItemPenerimaController::class, 'edit'])->name('requests.edit');
+    Route::put('/requests/{requestItem}', [ItemPenerimaController::class, 'update'])->name('requests.update');
+
+    // PBI #16: Mekanisme pembatalan permintaan
+    Route::patch('/requests/{requestItem}/cancel', [ItemPenerimaController::class, 'cancel'])->name('requests.cancel');
 
     // ========================================
     //               REQUEST BARANG
@@ -108,4 +121,3 @@ Route::middleware('auth')->group(function () {
 Route::get('/', function () {
     return redirect()->route('login');
 });
->>>>>>> d509f52a9616b5a55d2155d2ef7b4614306d552f

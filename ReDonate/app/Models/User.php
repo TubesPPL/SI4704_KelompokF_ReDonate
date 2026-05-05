@@ -42,13 +42,11 @@ class User extends Authenticatable
         return $this->hasMany(UserLog::class);
     }
 
-<<<<<<< HEAD
     public function itemRequests()
     {
         return $this->hasMany(ItemRequest::class, 'requester_id');
     }
-}
-=======
+
     // =========================
     // ROLE CHECK
     // =========================
@@ -137,4 +135,3 @@ class User extends Authenticatable
         return $query->whereIn('role', [$role, 'both']);
     }
 }
->>>>>>> d509f52a9616b5a55d2155d2ef7b4614306d552f

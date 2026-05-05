@@ -3,22 +3,22 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-<<<<<<< HEAD
-
-class Item extends Model
-{
-    protected $fillable = [
-        'user_id', 'category_id', 'event_id', 'item_name', 
-        'description', 'condition', 'image_url', 'status'
-    ];
-
-    public function requests()
-    {
-        // Otomatis mencari kolom 'item_id' di tabel requests yang merujuk ke 'id' di tabel items
-        return $this->hasMany(ItemRequest::class);
-=======
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+// class Item extends Model
+// {
+//     protected $fillable = [
+//         'user_id', 'category_id', 'event_id', 'item_name', 
+//         'description', 'condition', 'image_url', 'status'
+//     ];
+
+//     public function requests()
+//     {
+//         // Otomatis mencari kolom 'item_id' di tabel requests yang merujuk ke 'id' di tabel items
+//         return $this->hasMany(ItemRequest::class);
+// use Illuminate\Database\Eloquent\SoftDeletes;
+// use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Item extends Model
 {
@@ -102,6 +102,5 @@ class Item extends Model
     public function getRouteKeyName()
     {
         return 'item_id';
->>>>>>> d509f52a9616b5a55d2155d2ef7b4614306d552f
     }
 }

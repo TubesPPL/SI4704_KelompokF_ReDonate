@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('item', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users', 'user_id')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users', 'id')->onDelete('cascade');
             $table->foreignId('category_id')->constrained('categories', 'category_id')->onDelete('cascade');
-            $table->foreignId('event_id')->nullable()->constrained('events', 'event_id')->onDelete('set null');
+            $table->foreignId('event_id')->nullable()->constrained('event', 'id')->onDelete('set null');
             $table->string('item_name');
             $table->text('description');
             $table->integer('condition');
