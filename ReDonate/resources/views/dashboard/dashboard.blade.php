@@ -26,7 +26,7 @@
         </div>
 
         <div class="nav-auth">
-            <a href="#" class="btn-solid">Donasi Sekarang</a>
+            <a href="{{ route('items.create') }}" class="btn-solid">Donasi Sekarang</a>
             
             <!-- Menu Profil & Panel PBI 17 -->
             <div class="profile-menu">
@@ -143,6 +143,7 @@
     @php
         $dummyItems = [
             [
+                'id' => 1,
                 'name' => 'Sofa 3 Dudukan',
                 'condition' => 'Baik',
                 'description' => 'Sofa dalam kondisi sangat baik, warna coklat, nyaman untuk keluarga.',
@@ -153,6 +154,7 @@
                 'image' => 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=400',
             ],
             [
+                'id' => 2,
                 'name' => 'Pakaian Anak',
                 'condition' => 'Baik',
                 'description' => 'Koleksi pakaian anak usia 5-10 tahun, kondisi masih bagus dan bersih.',
@@ -163,6 +165,7 @@
                 'image' => 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&q=80&w=400',
             ],
             [
+                'id' => 3,
                 'name' => 'Buku Pelajaran SMA',
                 'condition' => 'Cukup Baik',
                 'description' => 'Kumpulan buku pelajaran SMA berbagai mata pelajaran.',
@@ -173,6 +176,7 @@
                 'image' => 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&q=80&w=400',
             ],
             [
+                'id' => 4,
                 'name' => 'Laptop untuk Belajar',
                 'condition' => 'Baik',
                 'description' => 'Laptop bekas masih berfungsi baik untuk belajar online.',
@@ -208,26 +212,28 @@
     @endphp
 
     @foreach($dummyItems as $item)
-        <div class="item-card">
-            <div class="item-img">
-                <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}">
-            </div>
-
-            <div class="item-content">
-                <div class="item-header">
-                    <span class="item-title">{{ $item['name'] }}</span>
-                    <span class="badge-condition">{{ $item['condition'] }}</span>
+        <a href="/items/{{ $item['id'] ?? 1 }}" style="text-decoration: none; color: inherit;">
+            <div class="item-card">
+                <div class="item-img">
+                    <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}">
                 </div>
 
-                <p class="item-desc">{{ $item['description'] }}</p>
+                <div class="item-content">
+                    <div class="item-header">
+                        <span class="item-title">{{ $item['name'] }}</span>
+                        <span class="badge-condition">{{ $item['condition'] }}</span>
+                    </div>
 
-                <div class="item-footer">
-                    <div><i class="fa-solid fa-location-dot"></i> {{ $item['location'] }}</div>
-                    <div><i class="fa-regular fa-user"></i> {{ $item['user'] }}</div>
-                    <div><i class="fa-regular fa-calendar"></i> {{ date('d/m/Y', strtotime($item['date'])) }}</div>
+                    <p class="item-desc">{{ $item['description'] }}</p>
+
+                    <div class="item-footer">
+                        <div><i class="fa-solid fa-location-dot"></i> {{ $item['location'] }}</div>
+                        <div><i class="fa-regular fa-user"></i> {{ $item['user'] }}</div>
+                        <div><i class="fa-regular fa-calendar"></i> {{ date('d/m/Y', strtotime($item['date'])) }}</div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
     @endforeach
 
 </div>
