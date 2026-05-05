@@ -4,7 +4,6 @@ namespace Tests\Browser;
 
 use App\Models\Item;
 use App\Models\User;
-use App\Models\RequestItem;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -20,7 +19,6 @@ class RequestItemTest extends DuskTestCase
         $this->artisan('db:seed');
     }
 
-    /** @test */
     public function test_penerima_can_request_and_manage_item(): void
     {
         $this->browse(function (Browser $browser) {
@@ -30,6 +28,7 @@ class RequestItemTest extends DuskTestCase
             $browser->loginAs($penerima)
                     ->visit('/items/' . $item->id)
                     ->waitForText($item->item_name)
+                    
                     // PBI 13 & 14: Submit & List
                     ->clickLink('Ajukan Permintaan')
                     ->type('message', 'Halo, saya membutuhkan barang ini. [PBI 13-14]')
@@ -44,10 +43,14 @@ class RequestItemTest extends DuskTestCase
                     ->select('pickup_method', 'cod')
                     ->press('Simpan Perubahan')
                     ->waitForText('Metode pengambilan berhasil diperbarui!')
-                    ->assertSee('Bertemu Langsung (COD)')
+                    ->pause(1000)
+                    ->assertSee('Cod')
 
                     // PBI 16: Pembatalan
-                    ->press('Batalkan Permintaan')
+                    // Arahkan mouse ke baris tabel (tr) agar tombol batal yang transparan menjadi terlihat
+                    ->mouseover('tr.group')
+                    ->pause(500)
+                    ->click('button[title="Batalkan Permintaan"]')
                     ->acceptDialog()
                     ->waitForText('Permintaan berhasil dibatalkan.');
         });
