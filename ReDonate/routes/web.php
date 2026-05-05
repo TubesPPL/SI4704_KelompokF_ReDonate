@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RequestItemController;
 use App\Http\Controllers\ItemRequestController;
 use App\Http\Controllers\ItemPenerimaController;
+use App\Http\Controllers\ItemController; // Tambahkan controller Item
 use Illuminate\Support\Facades\Route;
 
 // ========================================
@@ -47,6 +48,9 @@ Route::middleware('auth')->group(function () {
     // DASHBOARD UMUM
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
+
+    // MENGATASI ERROR 404 SAAT MENGKLIK ITEM DI DASHBOARD
+    Route::get('/items/{id}', [ItemController::class, 'show'])->name('items.show');
 
     // DASHBOARD PER ROLE
     Route::get('/dashboard/penerima', [DashboardController::class, 'penerima'])
@@ -99,7 +103,7 @@ Route::middleware('auth')->group(function () {
 
 
     // ========================================
-    //                  PROFILE
+    //                   PROFILE
     // ========================================
     Route::prefix('profile')->name('profile.')->group(function () {
 

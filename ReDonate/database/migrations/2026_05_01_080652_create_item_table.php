@@ -13,15 +13,29 @@ return new class extends Migration
     {
         Schema::create('item', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users', 'id')->onDelete('cascade');
-            $table->foreignId('category_id')->constrained('categories', 'category_id')->onDelete('cascade');
-            $table->foreignId('event_id')->nullable()->constrained('event', 'id')->onDelete('set null');
-            $table->string('item_name');
-            $table->text('description');
-            $table->integer('condition');
-            $table->string('image_url');
-            $table->integer('status');
+            
+            // Kolom penyimpan ID relasi
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('category_id');
+            $table->unsignedBigInteger('event_id')->nullable();
+
+            // Kolom detail barang
+            $table->string('item_name')->nullable();
+            $table->text('description')->nullable();
+            $table->string('condition')->nullable();
+            $table->string('image_url')->nullable();
+            $table->string('status')->default('available');
+            $table->string('location')->nullable();
+            
             $table->timestamps();
+            $table->softDeletes();
+
+            // ==========================================
+            // INI BAGIAN RELASI YANG SUDAH DIPERBAIKI
+            // Mengarah ke kolom bawaan 'id', bukan 'category_id'
+            // ==========================================
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

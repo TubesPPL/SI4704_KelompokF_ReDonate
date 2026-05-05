@@ -39,8 +39,8 @@
                     <a href="#"><i class="fa-regular fa-bell"></i> Notifikasi</a>
                     <a href="#"><i class="fa-regular fa-comment-dots"></i> Chat</a>
                     
-                    <!-- Ini adalah gerbang masuk ke PBI 17 Anda -->
-                    <a href="{{ route('donatur.requests.index') }}"><i class="fa-solid fa-inbox"></i> Permintaan Masuk</a>
+                    <!-- Ini adalah gerbang masuk ke PBI 17 -->
+                    <a href="{{ route('donatur.requests.index') ?? '#' }}"><i class="fa-solid fa-inbox"></i> Permintaan Masuk</a>
                     <a href="#"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Donasi</a>
                     
                     <form method="POST" action="{{ route('logout') }}">
@@ -96,12 +96,14 @@
 
             <select name="category" style="padding:10px 15px; border:1px solid #ddd; border-radius:10px;">
                 <option value="">Semua Kategori</option>
-                @foreach($categories as $category)
-                    <option value="{{ $category->category_id }}"
-                        {{ request('category') == $category->category_id ? 'selected' : '' }}>
-                        {{ $category->category_name }}
-                    </option>
-                @endforeach
+                @if(isset($categories))
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}"
+                            {{ request('category') == $category->id ? 'selected' : '' }}>
+                            {{ $category->category_name }}
+                        </option>
+                    @endforeach
+                @endif
             </select>
 
             <select name="sort" style="padding:10px 15px; border:1px solid #ddd; border-radius:10px;">
@@ -134,103 +136,48 @@
 
         </div>
     </form>
-
-    <!-- GRID BARANG  -->
             
-        <!-- GRID BARANG -->
-<div class="items-grid">
+    <!-- GRID BARANG -->
+    <div class="items-grid">
+        @if(isset($items) && $items->count() > 0)
+            @foreach($items as $item)
+                <a href="{{ url('/items/' . $item->id) }}" class="item-card" style="text-decoration: none; color: inherit; display: block;">
+                    
+                    <!-- BAGIAN GAMBAR YANG SUDAH DIPERBAIKI -->
+                    <div class="item-img">
+                        @if($item->image_url)
+                            @if(Str::startsWith($item->image_url, ['http://', 'https://']))
+                                <img src="{{ $item->image_url }}" alt="{{ $item->item_name }}" style="width: 100%; height: 200px; object-fit: cover;">
+                            @else
+                                <img src="{{ asset('storage/' . $item->image_url) }}" alt="{{ $item->item_name }}" style="width: 100%; height: 200px; object-fit: cover;">
+                            @endif
+                        @else
+                            <img src="https://placehold.co/400x300/e2e8f0/475569?text=No+Image" alt="No Image" style="width: 100%; height: 200px; object-fit: cover;">
+                        @endif
+                    </div>
 
-    @php
-        $dummyItems = [
-            [
-                'name' => 'Sofa 3 Dudukan',
-                'condition' => 'Baik',
-                'description' => 'Sofa dalam kondisi sangat baik, warna coklat, nyaman untuk keluarga.',
-                'location' => 'Jakarta Selatan',
-                'user' => 'Budi Santoso',
-                'date' => '2026-03-28',
-                'category' => 3,
-                'image' => 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=400',
-            ],
-            [
-                'name' => 'Pakaian Anak',
-                'condition' => 'Baik',
-                'description' => 'Koleksi pakaian anak usia 5-10 tahun, kondisi masih bagus dan bersih.',
-                'location' => 'Bandung',
-                'user' => 'Siti Rahayu',
-                'date' => '2026-03-29',
-                'category' => 1,
-                'image' => 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&q=80&w=400',
-            ],
-            [
-                'name' => 'Buku Pelajaran SMA',
-                'condition' => 'Cukup Baik',
-                'description' => 'Kumpulan buku pelajaran SMA berbagai mata pelajaran.',
-                'location' => 'Surabaya',
-                'user' => 'Ahmad Wijaya',
-                'date' => '2026-03-27',
-                'category' => 4,
-                'image' => 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&q=80&w=400',
-            ],
-            [
-                'name' => 'Laptop untuk Belajar',
-                'condition' => 'Baik',
-                'description' => 'Laptop bekas masih berfungsi baik untuk belajar online.',
-                'location' => 'Yogyakarta',
-                'user' => 'Dewi Lestari',
-                'date' => '2026-03-30',
-                'category' => 2,
-                'image' => 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&q=80&w=400',
-            ],
-        ];
+                    <div class="item-content">
+                        <div class="item-header">
+                            <span class="item-title">{{ $item->item_name }}</span>
+                            <span class="badge-condition">{{ ucfirst($item->condition) }}</span>
+                        </div>
 
-        // SEARCH
-        if(request('search')){
-            $dummyItems = array_filter($dummyItems, function($item){
-                return str_contains(strtolower($item['name']), strtolower(request('search')));
-            });
-        }
+                        <p class="item-desc">{{ Str::limit($item->description, 100) }}</p>
 
-        // CATEGORY
-        if(request('category')){
-            $dummyItems = array_filter($dummyItems, function($item){
-                return $item['category'] == request('category');
-            });
-        }
+                        <div class="item-footer">
+                            <div><i class="fa-solid fa-location-dot"></i> {{ $item->location ?? 'Lokasi tidak diketahui' }}</div>
+                            <div><i class="fa-regular fa-user"></i> {{ $item->user->name ?? 'Donatur' }}</div>
+                            <div><i class="fa-regular fa-calendar"></i> {{ $item->created_at->format('d/m/Y') }}</div>
+                        </div>
+                    </div>
+                </a>
+            @endforeach
+        @else
+            <p style="text-align: center; color: #6b7280; grid-column: 1 / -1; padding: 20px;">Belum ada barang yang tersedia saat ini.</p>
+        @endif
+    </div>
+   </section>
 
-        // SORT
-        usort($dummyItems, function($a, $b){
-            if(request('sort') == 'oldest'){
-                return strtotime($a['date']) <=> strtotime($b['date']);
-            }
-            return strtotime($b['date']) <=> strtotime($a['date']);
-        });
-    @endphp
-
-    @foreach($dummyItems as $item)
-        <div class="item-card">
-            <div class="item-img">
-                <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}">
-            </div>
-
-            <div class="item-content">
-                <div class="item-header">
-                    <span class="item-title">{{ $item['name'] }}</span>
-                    <span class="badge-condition">{{ $item['condition'] }}</span>
-                </div>
-
-                <p class="item-desc">{{ $item['description'] }}</p>
-
-                <div class="item-footer">
-                    <div><i class="fa-solid fa-location-dot"></i> {{ $item['location'] }}</div>
-                    <div><i class="fa-regular fa-user"></i> {{ $item['user'] }}</div>
-                    <div><i class="fa-regular fa-calendar"></i> {{ date('d/m/Y', strtotime($item['date'])) }}</div>
-                </div>
-            </div>
-        </div>
-    @endforeach
-
-</div>
     <!-- Section Kategori -->
     <section class="category-section">
         <h2>Kategori Barang</h2>
