@@ -39,8 +39,8 @@
                     <a href="#"><i class="fa-regular fa-bell"></i> Notifikasi</a>
                     <a href="#"><i class="fa-regular fa-comment-dots"></i> Chat</a>
                     
-                    <!-- Ini adalah gerbang masuk ke PBI 17 Anda -->
-                    <a href="{{ route('donatur.requests.index') }}"><i class="fa-solid fa-inbox"></i> Permintaan Masuk</a>
+                    <!-- Ini adalah gerbang masuk ke PBI 17 -->
+                    <a href="{{ route('donatur.requests.index') ?? '#' }}"><i class="fa-solid fa-inbox"></i> Permintaan Masuk</a>
                     <a href="#"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Donasi</a>
                     
                     <form method="POST" action="{{ route('logout') }}">
@@ -96,12 +96,14 @@
 
             <select name="category" style="padding:10px 15px; border:1px solid #ddd; border-radius:10px;">
                 <option value="">Semua Kategori</option>
-                @foreach($categories as $category)
-                    <option value="{{ $category->category_id }}"
-                        {{ request('category') == $category->category_id ? 'selected' : '' }}>
-                        {{ $category->category_name }}
-                    </option>
-                @endforeach
+                @if(isset($categories))
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}"
+                            {{ request('category') == $category->id ? 'selected' : '' }}>
+                            {{ $category->category_name }}
+                        </option>
+                    @endforeach
+                @endif
             </select>
 
             <select name="sort" style="padding:10px 15px; border:1px solid #ddd; border-radius:10px;">
@@ -134,8 +136,6 @@
 
         </div>
     </form>
-
-    <!-- GRID BARANG  -->
             
         <!-- GRID BARANG -->
 <div class="items-grid">
@@ -236,7 +236,6 @@
         </a>
     @endforeach
 
-</div>
     <!-- Section Kategori -->
     <section class="category-section">
         <h2>Kategori Barang</h2>

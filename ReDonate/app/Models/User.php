@@ -42,6 +42,11 @@ class User extends Authenticatable
         return $this->hasMany(UserLog::class);
     }
 
+    public function itemRequests()
+    {
+        return $this->hasMany(ItemRequest::class, 'requester_id');
+    }
+
     // =========================
     // ROLE CHECK
     // =========================
