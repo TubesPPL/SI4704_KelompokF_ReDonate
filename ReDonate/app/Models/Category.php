@@ -9,14 +9,14 @@ class Category extends Model
 {
     use HasFactory;
 
+    protected $table = 'categories';
     protected $primaryKey = 'category_id';
 
     protected $fillable = [
         'category_name',
-        'description',
+        'description'
     ];
 
-    /** Satu kategori memiliki banyak item */
     public function items()
     {
         return $this->hasMany(Item::class, 'category_id', 'category_id');
