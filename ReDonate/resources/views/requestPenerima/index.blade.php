@@ -8,8 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
-
-    <!-- Navbar Simple -->
     <nav class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <a href="{{ route('dashboard') }}" class="text-green-600 font-bold text-xl flex items-center gap-2">
@@ -20,7 +18,6 @@
     </nav>
 
     <div class="max-w-6xl mx-auto py-10 px-4 sm:px-6">
-        
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
             <div>
                 <h1 class="text-3xl font-extrabold text-gray-900">Permintaan Saya</h1>
@@ -31,7 +28,6 @@
             </a>
         </div>
 
-        <!-- Alert Success -->
         @if(session('success'))
             <div class="mb-6 bg-green-50 border border-green-200 text-green-700 px-6 py-4 rounded-xl flex items-center gap-3 shadow-sm">
                 <i class="fa-solid fa-circle-check text-xl"></i>
@@ -39,7 +35,6 @@
             </div>
         @endif
 
-        <!-- Table Card -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
@@ -55,16 +50,13 @@
                     <tbody class="divide-y divide-gray-100">
                         @forelse($requests as $req)
                         <tr class="hover:bg-gray-50 transition-colors group">
-                            <!-- Barang -->
                             <td class="p-5">
                                 <div class="font-bold text-gray-900">{{ $req->item->item_name ?? 'Barang telah dihapus' }}</div>
                                 <div class="text-xs text-gray-500 mt-1 truncate max-w-xs">{{ $req->message ?: 'Tanpa pesan' }}</div>
                             </td>
-                            <!-- Tanggal -->
                             <td class="p-5 text-gray-600 text-sm">
                                 {{ $req->created_at->format('d M Y, H:i') }}
                             </td>
-                            <!-- Metode -->
                             <td class="p-5">
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold border border-gray-200">
                                     @if($req->pickup_method == 'ambil_sendiri') <i class="fa-solid fa-person-walking"></i>
@@ -73,7 +65,6 @@
                                     {{ str_replace('_', ' ', Str::title($req->pickup_method)) }}
                                 </span>
                             </td>
-                            <!-- Status -->
                             <td class="p-5">
                                 @if($req->status == 'pending')
                                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-50 text-yellow-700 text-xs font-bold border border-yellow-200">
@@ -89,7 +80,6 @@
                                     </span>
                                 @endif
                             </td>
-                            <!-- Aksi -->
                             <td class="p-5 text-right">
                                 @if($req->status == 'pending')
                                     <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

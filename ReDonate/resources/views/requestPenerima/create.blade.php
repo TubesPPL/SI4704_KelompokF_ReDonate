@@ -8,8 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
-
-    <!-- Navbar Simple -->
     <nav class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
         <div class="max-w-5xl mx-auto flex justify-between items-center">
             <a href="{{ route('dashboard') }}" class="text-green-600 font-bold text-xl flex items-center gap-2">
@@ -19,13 +17,10 @@
     </nav>
 
     <div class="max-w-3xl mx-auto py-10 px-4 sm:px-6">
-        
-        <!-- Tombol Kembali -->
         <a href="{{ route('items.show', $item->id) }}" class="inline-flex items-center gap-2 text-gray-500 hover:text-green-600 mb-6 transition-colors">
             <i class="fa-solid fa-arrow-left"></i> Kembali ke Detail Barang
         </a>
 
-        <!-- Card Form -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="bg-green-50/50 border-b border-gray-100 p-6 sm:p-8">
                 <div class="flex items-center gap-4">
@@ -45,7 +40,6 @@
 
             <form action="{{ route('requests.store', $item->id) }}" method="POST" class="p-6 sm:p-8 space-y-6">
                 @csrf
-                
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">
                         Pesan untuk Donatur <span class="text-gray-400 font-normal">(Opsional)</span>
@@ -77,6 +71,5 @@
             </form>
         </div>
     </div>
-
 </body>
 </html>

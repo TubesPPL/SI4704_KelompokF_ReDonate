@@ -11,8 +11,6 @@
 
     <div class="min-h-screen flex items-center justify-center p-4">
         <div class="max-w-xl w-full bg-white p-8 sm:p-10 rounded-2xl shadow-lg border border-gray-100 relative">
-            
-            <!-- Icon Dekoratif -->
             <div class="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-lg transform rotate-3">
                 <i class="fa-solid fa-pen-to-square text-xl"></i>
             </div>
