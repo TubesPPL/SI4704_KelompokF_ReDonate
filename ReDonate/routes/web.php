@@ -18,6 +18,21 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
 });
 
+// ========================================
+//            ITEMS (PUBLIC)
+// ========================================
+Route::get('/items/create', function () {
+    return view('items.create');
+})->name('items.create');
+
+Route::get('/items/{id}', function ($id) {
+    return view('items.show', compact('id'));
+})->name('items.show');
+
+Route::get('/items/{id}/edit', function ($id) {
+    return view('items.edit', compact('id'));
+})->name('items.edit');
+
 
 // ========================================
 //              AUTH ROUTES
