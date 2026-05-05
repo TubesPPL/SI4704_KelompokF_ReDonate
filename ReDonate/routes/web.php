@@ -22,23 +22,21 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+// ========================================
+//            ITEMS (PUBLIC)
+// ========================================
+Route::get('/items/create', function () {
+    return view('items.create');
+})->name('items.create');
 
-    // PBI #14: Menampilkan daftar seluruh permintaan yang pernah diajukan
-    Route::get('/requests', [ItemRequestController::class, 'index']);
+Route::get('/items/{id}', function ($id) {
+    return view('items.show', compact('id'));
+})->name('items.show');
 
-    // PBI #13: Mekanisme pembuatan permintaan (request) barang
-    Route::post('/requests', [ItemRequestController::class, 'store']);
+Route::get('/items/{id}/edit', function ($id) {
+    return view('items.edit', compact('id'));
+})->name('items.edit');
 
-    // PBI #15: Memperbarui preferensi metode pengambilan
-    // Menggunakan PATCH karena kita hanya mengubah satu bagian data (parsial), bukan keseluruhan record
-    Route::patch('/requests/{id}/pickup-method', [ItemRequestController::class, 'updatePickupMethod']);
-
-    // PBI #16: Mekanisme pembatalan permintaan oleh penerima
-    // Menggunakan PATCH juga karena kita hanya mengubah statusnya saja
-    // Route::patch('/requests/{id}/cancel', [ItemRequestController::class, 'cancel']);
-
-});
 
 // ========================================
 //              AUTH ROUTES
