@@ -22,7 +22,7 @@ class Item extends Model
         'location',
     ];
 
-    // Tambahkan Local Scope ini
+    // PBI #21: Menentukan kriteria barang yang tersedia
     public function scopeAvailable($query)
     {
         return $query->where('status', 'available');
@@ -30,7 +30,7 @@ class Item extends Model
 
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     public function user()

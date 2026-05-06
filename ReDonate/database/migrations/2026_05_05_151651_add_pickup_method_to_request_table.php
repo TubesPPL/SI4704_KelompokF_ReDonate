@@ -7,16 +7,16 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     public function up(): void
-    {
-        Schema::table('request', function (Blueprint $table) {
-            $table->string('pickup_method')->nullable()->after('message');
-        });
-    }
+{
+    Schema::table('request_items', function (Blueprint $table) {
+        $table->string('pickup_method')->nullable()->after('description');
+    });
+}
 
-    public function down(): void
-    {
-        Schema::table('request', function (Blueprint $table) {
-            $table->dropColumn('pickup_method');
-        });
-    }
+public function down(): void
+{
+    Schema::table('request_items', function (Blueprint $table) {
+        $table->dropColumn('pickup_method');
+    });
+}
 };

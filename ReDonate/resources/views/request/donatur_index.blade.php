@@ -33,31 +33,31 @@
             @forelse($requests as $req)
                 <div class="request-card">
                     <div class="request-info">
-                        <!-- Cek apakah ada foto barang, jika tidak pakai placeholder -->
-                        <img src="{{ $req->item->image_full_url ?? asset('images/default-item.png') }}" alt="Item" class="item-thumbnail" onerror="this.src='https://via.placeholder.com/80'">
+                        
+                        <!-- REVISI: Menggunakan URL Online agar server tidak macet mencari file lokal -->
+                        <img src="{{ $req->item->image_full_url ?? 'https://via.placeholder.com/80?text=No+Image' }}" alt="Item" class="item-thumbnail">
                         
                         <div class="request-details">
                             <h3>{{ $req->item->item_name ?? 'Barang Tidak Diketahui' }}</h3>
                             <div class="requester-name">
-                                <img src="{{ $req->user->photo_url ?? asset('images/default-avatar.png') }}" class="requester-avatar" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($req->user->name ?? 'User') }}'">
+                                <!-- REVISI: Menggunakan URL Online untuk Avatar -->
+                                <img src="{{ $req->user->photo_url ?? 'https://ui-avatars.com/api/?name='.urlencode($req->user->name ?? 'User') }}" class="requester-avatar">
                                 Diminta oleh: <strong>{{ $req->user->name ?? 'Pengguna' }}</strong>
                             </div>
                             <div class="request-qty">Jumlah: {{ $req->quantity }} unit | Tanggal: {{ $req->created_at->format('d M Y') }}</div>
                         </div>
                     </div>
 
-                    <!-- PBI 18 & 19: Tombol Aksi (Hanya muncul jika status pending) -->
+                    <!-- PBI 18 & 19: Tombol Aksi -->
                     <div class="request-actions">
                         @if($req->status === 'pending')
                             
-                            <!-- Tombol Terima (Approve) -->
                             <form action="{{ route('donatur.requests.approve', $req->id) }}" method="POST">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" class="btn-action btn-approve" title="Setujui Permintaan"><i class="fa-solid fa-check"></i> Terima</button>
                             </form>
 
-                            <!-- Tombol Tolak (Reject) -->
                             <form action="{{ route('donatur.requests.reject', $req->id) }}" method="POST">
                                 @csrf
                                 @method('PATCH')

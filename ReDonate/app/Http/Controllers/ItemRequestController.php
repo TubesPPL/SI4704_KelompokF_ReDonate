@@ -2,124 +2,108 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\RequestItem;
 use App\Models\Item;
-use App\Models\ItemRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
-class ItemRequestController extends Controller
+class RequestItemController extends Controller
 {
-    /**
-     * PBI #14: Menampilkan daftar seluruh permintaan yang pernah diajukan oleh pengguna
-     */
-    public function index()
+    public function create(Request $request)
     {
-        $userId = Auth::id() ?? 1; 
+        // Pastikan barang ada dan statusnya 'available'
+        $item = Item::findOrFail($request->item_id);
+        
+        if ($item->status !== 'available') {
+            return redirect()->route('dashboard')->with('error', 'Barang sudah tidak tersedia.');
+        }
 
-        // Karena relasi sudah diatur rapi, pemanggilan 'with' akan sangat efisien
-        $requests = ItemRequest::with('item')
-            ->where('requester_id', $userId)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Daftar permintaan berhasil diambil.',
-            'data' => $requests
-        ]);
+        return view('request.create', compact('item'));
     }
 
-    /**
-     * PBI #13: Mekanisme pembuatan permintaan (request) untuk barang yang tersedia
-     */
+    // PBI #13: Menyimpan request ke database
     public function store(Request $request)
     {
-        $request->validate([
-            'item_id' => 'required|exists:items,id', // Validasi ke kolom 'id' di tabel items
-            'pickup_method' => 'nullable|string'
+        $validated = $request->validate([
+            'item_id' => 'required|exists:items,id',
+            'title' => 'required|string|max:100',
+            'description' => 'nullable|string|max:500',
+            'category' => 'nullable|string|max:50',
+            'quantity' => 'required|integer|min:1'
         ]);
-
-        // findOrFail otomatis mencari berdasarkan kolom 'id'
-        $item = Item::findOrFail($request->item_id);
-
-        if ($item->status != 1) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Barang sudah tidak tersedia.'
-            ], 400);
+        
+        $item = Item::findOrFail($validated['item_id']);
+        
+        if ($item->status !== 'available') {
+            return redirect()->route('dashboard')->with('error', 'Barang sudah tidak tersedia.');
         }
 
-        $userId = Auth::id() ?? 1;
-
-        $itemRequest = ItemRequest::create([
-            'item_id' => $item->id,
-            'requester_id' => $userId,
+        RequestItem::create([
+            'user_id' => Auth::id(), // ID Penerima
+            'item_id' => $validated['item_id'],
             'status' => 'pending', 
-            'request_date' => Carbon::now(),
-            'pickup_method' => $request->pickup_method ?? 'cod' 
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'category' => $validated['category'] ?? null,
+            'quantity' => $validated['quantity'],
         ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Permintaan barang berhasil diajukan.',
-            'data' => $itemRequest
-        ], 201);
+       
+        return redirect()->route('dashboard')->with('success', 'Request barang berhasil dikirim!');
     }
 
-    /**
-     * PBI #15: Fitur untuk memperbarui preferensi metode pengambilan
-     */
-    public function updatePickupMethod(Request $request, $id)
+    // PBI #17: Halaman Panel Donatur
+    public function donaturRequests()
     {
-        $request->validate([
-            'pickup_method' => 'required|string|in:cod,delivery,pickup'
-        ]);
+        $requests = RequestItem::whereHas('item', function ($query) {
+            $query->where('user_id', Auth::id());
+        })
+        ->with(['item', 'user']) 
+        ->orderBy('created_at', 'desc')
+        ->get();
 
-        $itemRequest = ItemRequest::findOrFail($id);
-
-        $userId = Auth::id() ?? 1;
-        if ($itemRequest->requester_id !== $userId) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        $itemRequest->update([
-            'pickup_method' => $request->pickup_method
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Preferensi metode pengambilan berhasil diperbarui.',
-            'data' => $itemRequest
-        ]);
+        return view('request.donatur_index', compact('requests'));
     }
 
-    /**
-     * PBI #16: Mekanisme pembatalan permintaan oleh penerima
-     */
-    public function cancel($id)
+    // PBI #18: Menyetujui (Approve)
+    public function approve($id)
     {
-        $itemRequest = ItemRequest::findOrFail($id);
-
-        $userId = Auth::id() ?? 1;
-        if ($itemRequest->requester_id !== $userId) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        $requestItem = RequestItem::findOrFail($id);
+        
+        if ($requestItem->item->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
         }
 
-        if (in_array($itemRequest->status, ['completed', 'cancelled'])) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Permintaan ini tidak dapat dibatalkan karena statusnya saat ini: ' . $itemRequest->status
-            ], 400);
+        // Ubah status request jadi approved
+        $requestItem->update(['status' => 'approved']);
+        
+        // Opsional: Ubah status barang jadi 'diproses' / 'unavailable'
+        $requestItem->item->update(['status' => 'diproses']);
+
+        return redirect()->back()->with('success', 'Permintaan disetujui!');
+    }
+
+    // PBI #19: Menolak (Reject)
+    public function reject($id)
+    {
+        $requestItem = RequestItem::findOrFail($id);
+        
+        if ($requestItem->item->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
         }
 
-        $itemRequest->update([
-            'status' => 'cancelled'
-        ]);
+        $requestItem->update(['status' => 'rejected']);
+        return redirect()->back()->with('success', 'Permintaan ditolak!');
+    }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Permintaan berhasil dibatalkan.'
-        ]);
+    // PBI #20: Membersihkan riwayat
+    public function clearHistory()
+    {
+        RequestItem::whereHas('item', function ($query) {
+            $query->where('user_id', Auth::id());
+        })
+        ->where('status', 'rejected')
+        ->delete();
+
+        return redirect()->back()->with('success', 'Riwayat berhasil dihapus.');
     }
 }

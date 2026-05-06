@@ -9,23 +9,23 @@ class RequestItem extends Model
 {
     use HasFactory;
 
-    protected $table = 'request';
-
     protected $fillable = [
         'user_id',
         'item_id',
+        'title',
+        'description', 
+        'quantity',
         'status',
-        'message',
-        'pickup_method'
+        // pickup_method dihapus dari fillable
     ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 
     public function item()
     {
-        return $this->belongsTo(Item::class);
+        return $this->belongsTo(Item::class, 'item_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

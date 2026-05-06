@@ -42,7 +42,6 @@
                         <tr>
                             <th class="p-5 text-sm font-bold text-gray-600 uppercase tracking-wider">Barang</th>
                             <th class="p-5 text-sm font-bold text-gray-600 uppercase tracking-wider">Waktu Pengajuan</th>
-                            <th class="p-5 text-sm font-bold text-gray-600 uppercase tracking-wider">Metode Pengambilan</th>
                             <th class="p-5 text-sm font-bold text-gray-600 uppercase tracking-wider">Status</th>
                             <th class="p-5 text-sm font-bold text-gray-600 uppercase tracking-wider text-right">Aksi</th>
                         </tr>
@@ -52,18 +51,11 @@
                         <tr class="hover:bg-gray-50 transition-colors group">
                             <td class="p-5">
                                 <div class="font-bold text-gray-900">{{ $req->item->item_name ?? 'Barang telah dihapus' }}</div>
-                                <div class="text-xs text-gray-500 mt-1 truncate max-w-xs">{{ $req->message ?: 'Tanpa pesan' }}</div>
+                                <!-- PERBAIKAN: Menggunakan description, bukan message -->
+                                <div class="text-xs text-gray-500 mt-1 truncate max-w-xs">{{ $req->description ?: 'Tanpa pesan' }}</div>
                             </td>
                             <td class="p-5 text-gray-600 text-sm">
                                 {{ $req->created_at->format('d M Y, H:i') }}
-                            </td>
-                            <td class="p-5">
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold border border-gray-200">
-                                    @if($req->pickup_method == 'ambil_sendiri') <i class="fa-solid fa-person-walking"></i>
-                                    @elseif($req->pickup_method == 'kurir') <i class="fa-solid fa-truck"></i>
-                                    @else <i class="fa-solid fa-handshake"></i> @endif
-                                    {{ str_replace('_', ' ', Str::title($req->pickup_method)) }}
-                                </span>
                             </td>
                             <td class="p-5">
                                 @if($req->status == 'pending')
@@ -74,7 +66,7 @@
                                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-bold border border-green-200">
                                         <i class="fa-solid fa-check"></i> Disetujui
                                     </span>
-                                @elseif($req->status == 'cancelled' || $req->status == 'rejected')
+                                @elseif($req->status == 'canceled' || $req->status == 'rejected')
                                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-700 text-xs font-bold border border-red-200">
                                         <i class="fa-solid fa-xmark"></i> {{ ucfirst($req->status) }}
                                     </span>
@@ -101,7 +93,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="p-12 text-center">
+                            <td colspan="4" class="p-12 text-center">
                                 <div class="flex flex-col items-center justify-center text-gray-400">
                                     <i class="fa-solid fa-box-open text-6xl mb-4 text-gray-300"></i>
                                     <p class="text-lg font-medium text-gray-600">Belum ada barang yang Anda minta.</p>
