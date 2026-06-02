@@ -2,66 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Item;
-use App\Models\Category;
+use App\Models\Claim;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         $user = Auth::user();
 
-        if (!$user || !$user->is_active) {
-            Auth::logout();
-            return redirect()->route('login');
-        }
+        // Statistik
+        $activeItemsCount = $user->items()->active()->count();
+        $claimedItemsCount = $user->items()->where('status', 'claimed')->count();
+        $completedItemsCount = $user->items()->where('status', 'completed')->count();
+        $totalViews = $user->items()->sum('views');
 
-        $user->load([
-            'logs' => function ($query) {
-                $query->latest()->limit(5);
-            }
-        ]);
+        // Daftar Item Donatur (dengan search/filter opsional)
+        $items = $user->items()->latest()->paginate(10);
 
-        $query = Item::with(['user', 'category'])->available();
+        // Klaim Masuk (untuk item milik user yang berstatus pending)
+        $incomingClaims = Claim::whereHas('item', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->where('status', 'pending')->with(['item', 'user'])->latest()->get();
 
-        /*
-        ==========================
-        PBI 9 - Search
-        ==========================
-        */
-        if ($request->filled('search')) {
-            $query->where('item_name', 'like', '%' . $request->search . '%');
-        }
-
-        /*
-        ==========================
-        PBI 10 - Filter Category
-        ==========================
-        */
-        if ($request->filled('category')) {
-            $query->where('category_id', $request->category);
-        }
-
-        /*
-        ==========================
-        PBI 11 - Sorting
-        ==========================
-        */
-        if ($request->sort == 'oldest') {
-            $query->orderBy('created_at', 'asc');
-        } else {
-            $query->orderBy('created_at', 'desc');
-        }
-
-        $items = $query->get();
-        $categories = Category::all();
-
-        return view('dashboard.dashboard', compact(
-            'user',
+        return view('donor.dashboard', compact(
+            'activeItemsCount',
+            'claimedItemsCount',
+            'completedItemsCount',
+            'totalViews',
             'items',
-            'categories'
+            'incomingClaims'
         ));
     }
 }

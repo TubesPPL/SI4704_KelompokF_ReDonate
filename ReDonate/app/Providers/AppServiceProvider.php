@@ -19,6 +19,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \Illuminate\Support\Facades\View::composer('layouts.admin', function ($view) {
+            $view->with('pendingReports', \App\Models\Report::where('status', 'pending')->count());
+        });
     }
 }

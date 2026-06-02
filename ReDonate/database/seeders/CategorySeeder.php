@@ -2,35 +2,34 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        DB::table('categories')->insert([
-            [
-                'id' => 1, 
-                'category_name' => 'Pakaian', 
-                'description' => 'Segala jenis pakaian pria, wanita, dan anak-anak.', 
-                'created_at' => now(), 
-                'updated_at' => now()
-            ],
-            [
-                'id' => 2, 
-                'category_name' => 'Buku', 
-                'description' => 'Buku pelajaran, novel, komik, dan bahan bacaan lainnya.', 
-                'created_at' => now(), 
-                'updated_at' => now()
-            ],
-            [
-                'id' => 3, 
-                'category_name' => 'Elektronik', 
-                'description' => 'Barang elektronik rumah tangga dan gadget.', 
-                'created_at' => now(), 
-                'updated_at' => now()
-            ],
-        ]);
+        $categories = [
+            'Pakaian',
+            'Elektronik',
+            'Buku',
+            'Perabot Rumah',
+            'Mainan Anak',
+            'Olahraga',
+            'Alat Dapur',
+            'Lainnya'
+        ];
+
+        foreach ($categories as $category) {
+            Category::create([
+                'name' => $category,
+                'slug' => Str::slug($category),
+                'description' => 'Kategori untuk ' . strtolower($category),
+            ]);
+        }
     }
 }
