@@ -2,136 +2,95 @@
 
 namespace App\Models;
 
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Storage;
 
+#[Fillable(['name', 'email', 'password', 'phone', 'address', 'avatar', 'bio', 'is_verified', 'role'])]
+#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    /** @use HasFactory<UserFactory> */
+    use HasFactory, Notifiable;
 
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'role',
-        'photo_url',
-        'phone',
-        'address',
-        'is_active'
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'is_active' => 'boolean',
-    ];
-
-    // =========================
-    // RELATIONSHIP
-    // =========================
-    public function logs()
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
     {
-        return $this->hasMany(UserLog::class);
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'is_verified' => 'boolean',
+        ];
     }
 
-    public function itemRequests()
+    public function items()
     {
-        return $this->hasMany(ItemRequest::class, 'requester_id');
+        return $this->hasMany(Item::class);
     }
 
-    // =========================
-    // ROLE CHECK
-    // =========================
-    public function canDonate(): bool
+    public function claims()
     {
-        return in_array($this->role, ['donatur', 'both']);
+        return $this->hasMany(Claim::class);
     }
 
-    public function canReceive(): bool
+    public function events()
     {
-        return in_array($this->role, ['penerima', 'both']);
+        return $this->hasMany(Event::class, 'created_by');
     }
 
-    public function canManage(): bool
+    public function reviewsGiven()
     {
-        return $this->role === 'both';
+        return $this->hasMany(Review::class, 'reviewer_id');
     }
 
-    // =========================
-    // PHOTO ACCESSOR
-    // =========================
-    public function getPhotoUrlAttribute($value): string
+    public function reviewsReceived()
     {
-        if ($value && Storage::disk('public')->exists($value)) {
-            return Storage::url($value);
-        }
-
-        return match ($this->role) {
-            'donatur' => asset('/images/donatur-avatar.png'),
-            'penerima' => asset('/images/penerima-avatar.png'),
-            'both' => asset('/images/admin-avatar.png'),
-            default => asset('/images/default-avatar.png')
-        };
+        return $this->hasMany(Review::class, 'reviewee_id');
     }
 
-    // =========================
-    // ROLE LABEL
-    // =========================
-    public function getRoleDisplayAttribute(): string
+    public function notifications()
     {
-        return match ($this->role) {
-            'donatur' => 'Donatur',
-            'penerima' => 'Penerima Bantuan',
-            'both' => 'Admin / Pengelola',
-            default => 'User'
-        };
+        return $this->hasMany(Notification::class);
     }
 
-    // =========================
-    // MODEL BOOT (FIXED SAFE)
-    // =========================
-    protected static function booted()
+    public function unreadChatCount()
     {
-        static::deleting(function ($user) {
-
-            // SAFE CHECK tokens
-            if (method_exists($user, 'tokens')) {
-                $user->tokens()->delete();
-            }
-
-            // SAFE LOG (avoid crash kalau UserLog error)
-            try {
-                \App\Models\UserLog::create([
-                    'user_id' => $user->id,
-                    'action' => 'soft_delete_account',
-                    'old_data' => json_encode($user->toArray()),
-                    'ip_address' => request()->ip() ?? 'unknown',
-                    'user_agent' => request()->userAgent(),
-                ]);
-            } catch (\Throwable $e) {
-                // jangan crash sistem
-            }
-        });
+        return Message::where('sender_id', '!=', $this->id)
+            ->whereNull('read_at')
+            ->whereHas('claim', function ($query) {
+                $query->where('user_id', $this->id)
+                      ->orWhereHas('item', function ($q) {
+                          $q->where('user_id', $this->id);
+                      });
+            })
+            ->count();
     }
 
-    // =========================
-    // SCOPES
-    // =========================
-    public function scopeActive($query)
+    public function wishlistedItems()
     {
-        return $query->where('is_active', true);
+        return $this->belongsToMany(Item::class, 'wishlists')->withTimestamps();
     }
 
-    public function scopeByRole($query, string $role)
+    public function wishlistRequests()
     {
-        return $query->whereIn('role', [$role, 'both']);
+        return $this->hasMany(WishlistRequest::class);
+    }
+
+    public function madeReports()
+    {
+        return $this->hasMany(Report::class, 'user_id');
+    }
+
+    public function reports()
+    {
+        return $this->morphMany(Report::class, 'reportable');
     }
 }

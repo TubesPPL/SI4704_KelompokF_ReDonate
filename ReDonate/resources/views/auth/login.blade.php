@@ -1,110 +1,47 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - ReDonate</title>
-    <meta name="description" content="Platform Donasi Barang Layak Pakai">
-    @vite(['resources/css/auth.css', 'resources/js/auth.js'])
-</head>
-<body>
-<div class="container">
-    <!-- Left Hero -->
-    <div class="left">
-        <div class="logo">❤</div>
-        <h1 class="title">ReDonate</h1>
-        <p class="subtitle">
-            Platform Donasi Barang Layak Pakai. <br>
-            <strong>Bergabunglah dengan ribuan orang berbagi kebaikan</strong>
-        </p>
-        <div class="hero-box">
-            Donasi barang berkualitas untuk mereka yang membutuhkan. 
-            Satu klik, satu kebaikan.
+<x-guest-layout>
+    <!-- Session Status -->
+    <x-auth-session-status class="mb-4" :status="session('status')" />
+
+    <form method="POST" action="{{ route('login') }}">
+        @csrf
+
+        <!-- Email Address -->
+        <div>
+            <x-input-label for="email" :value="__('Email')" />
+            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+            <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
-    </div>
 
-    <!-- Right Form -->
-    <div class="right">
-        <div class="auth-card">
-            <h2>Masuk ke Akun</h2>
-            <p>Selamat datang kembali! Masukkan kredensial Anda</p>
+        <!-- Password -->
+        <div class="mt-4">
+            <x-input-label for="password" :value="__('Password')" />
 
-            <!-- Flash Messages -->
-            @if(session('success'))
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle"></i> {{ session('success') }}
-                </div>
+            <x-text-input id="password" class="block mt-1 w-full"
+                            type="password"
+                            name="password"
+                            required autocomplete="current-password" />
+
+            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        </div>
+
+        <!-- Remember Me -->
+        <div class="block mt-4">
+            <label for="remember_me" class="inline-flex items-center">
+                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-teal-600 shadow-sm focus:ring-teal-500" name="remember">
+                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+            </label>
+        </div>
+
+        <div class="flex items-center justify-end mt-4">
+            @if (Route::has('password.request'))
+                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500" href="{{ route('password.request') }}">
+                    {{ __('Forgot your password?') }}
+                </a>
             @endif
 
-            @if(session('error'))
-                <div class="alert alert-error">
-                    <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
-                </div>
-            @endif
-
-            <form method="POST" action="{{ route('login') }}" id="loginForm" novalidate>
-                @csrf
-                
-                <!-- Email -->
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        placeholder="masukkan@email.com"
-                        value="{{ old('email') }}"
-                        required
-                        aria-describedby="email-error"
-                        class="{{ $errors->has('email') ? 'error' : '' }}"
-                    >
-                    @error('email')
-                        <div id="email-error" class="error-message">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <!-- Password -->
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        placeholder="••••••••"
-                        required
-                        aria-describedby="password-error"
-                        class="{{ $errors->has('password') ? 'error' : '' }}"
-                    >
-                    @error('password')
-                        <div id="password-error" class="error-message">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <!-- Remember -->
-                <div class="remember-row">
-                    <label>
-                        <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
-                        Ingat saya
-                    </label>
-                </div>
-
-                <!-- Submit Button -->
-                <button type="submit" id="loginBtn" class="btn-primary">
-                    <span class="btn-text">Masuk ke Akun</span>
-                    <span class="loading" id="loadingSpinner" style="display: none;"></span>
-                </button>
-            </form>
-
-            <!-- Register Link -->
-            <div class="link-row">
-                Belum punya akun? 
-                <a href="{{ route('register') }}">Buat Akun Baru</a>
-            </div>
+            <x-primary-button class="ms-3">
+                {{ __('Log in') }}
+            </x-primary-button>
         </div>
-    </div>
-</div>
-
-{{-- Font Awesome --}}
-<script src="https://kit.fontawesome.com/your-kit.js" crossorigin="anonymous"></script>
-</body>
-</html>
+    </form>
+</x-guest-layout>

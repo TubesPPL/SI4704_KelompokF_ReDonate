@@ -9,17 +9,20 @@ class Category extends Model
 {
     use HasFactory;
 
-    // HAPUS ATAU COMMENT BARIS INI JIKA ADA:
-    // protected $primaryKey = 'category_id';
-
     protected $fillable = [
-        'category_name',
+        'name',
+        'slug',
+        'icon',
         'description',
     ];
 
     public function items()
     {
-        // Cukup gunakan relasi bawaan, Laravel otomatis membaca foreign key 'category_id' dan local key 'id'
-        return $this->hasMany(Item::class); 
+        return $this->hasMany(Item::class);
+    }
+
+    public function events()
+    {
+        return $this->belongsToMany(Event::class, 'event_categories');
     }
 }
