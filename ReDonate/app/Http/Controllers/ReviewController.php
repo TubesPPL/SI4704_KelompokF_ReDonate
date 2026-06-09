@@ -46,23 +46,110 @@ class ReviewController extends Controller
 
         $review = new Review();
         $review->claim_id = $claim->id;
-        $review->donor_id = $claim->item->user_id;
         $review->reviewer_id = Auth::id();
+        $review->reviewee_id = $claim->item->user_id;
         $review->rating = $validated['rating'];
         $review->comment = $validated['comment'] ?? null;
         $review->save();
-
-        // Update rating donatur (opsional: bisa dihitung dinamis atau disimpan di tabel users)
-        // Kita simpan rata-rata ke model User jika ada field rating (atau cukup query dinamis di profil).
 
         \App\Services\NotificationService::send(
             $claim->item->user_id,
             \App\Services\NotificationService::REVIEW_RECEIVED,
             'Ulasan Baru Diterima!',
             Auth::user()->name . ' memberikan Anda ulasan bintang ' . $review->rating . ' atas barang "' . $claim->item->title . '".',
-            ['action_url' => route('dashboard')]
+            ['action_url' => route('profile.show', $claim->item->user_id)]
         );
 
         return redirect()->route('recipient.dashboard')->with('success', 'Terima kasih! Ulasan Anda berhasil dikirim.');
+    }
+
+    public function edit($id)
+    {
+        $review = Review::with(['claim', 'claim.item', 'claim.item.user'])->findOrFail($id);
+
+        if ($review->reviewer_id !== Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        return view('reviews.edit', compact('review'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $review = Review::findOrFail($id);
+
+        if ($review->reviewer_id !== Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $validated = $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:1000',
+        ]);
+
+        $review->update([
+            'rating' => $validated['rating'],
+            'comment' => $validated['comment'] ?? null,
+        ]);
+
+        return redirect()->route('profile.show', $review->reviewee_id)->with('success', 'Ulasan Anda berhasil diperbarui.');
+    }
+
+    public function destroy($id)
+    {
+        $review = Review::findOrFail($id);
+
+        if ($review->reviewer_id !== Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $revieweeId = $review->reviewee_id;
+        $review->delete();
+
+        return redirect()->route('profile.show', $revieweeId)->with('success', 'Ulasan Anda berhasil dihapus.');
+    }
+
+    public function reply(Request $request, $id)
+    {
+        $review = Review::findOrFail($id);
+
+        if ($review->reviewee_id !== Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $validated = $request->validate([
+            'reply' => 'required|string|max:1000',
+        ]);
+
+        $review->update([
+            'reply' => $validated['reply'],
+            'reply_at' => now(),
+        ]);
+
+        \App\Services\NotificationService::send(
+            $review->reviewer_id,
+            \App\Services\NotificationService::REVIEW_RECEIVED,
+            'Ulasan Anda Dibalas!',
+            Auth::user()->name . ' membalas ulasan yang Anda berikan.',
+            ['action_url' => route('profile.show', $review->reviewee_id)]
+        );
+
+        return redirect()->route('profile.show', $review->reviewee_id)->with('success', 'Tanggapan Anda berhasil dikirim.');
+    }
+
+    public function destroyReply($id)
+    {
+        $review = Review::findOrFail($id);
+
+        if ($review->reviewee_id !== Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $review->update([
+            'reply' => null,
+            'reply_at' => null,
+        ]);
+
+        return redirect()->route('profile.show', $review->reviewee_id)->with('success', 'Tanggapan Anda berhasil dihapus.');
     }
 }
