@@ -22,6 +22,21 @@ class UserSeeder extends Seeder
             'is_verified' => true,
         ]);
 
+        User::create([
+            'name' => 'User1 ReDonate',
+            'email' => 'user1@redonate.com',
+            'password' => Hash::make('password'),
+            'role' => 'user',
+            'is_verified' => true,
+        ]);
+        User::create([
+            'name' => 'User2 ReDonate',
+            'email' => 'user2@redonate.com',
+            'password' => Hash::make('password'),
+            'role' => 'user',
+            'is_verified' => true,
+        ]);
+
         // 5 User Biasa
         User::factory()->count(5)->create([
             'role' => 'user',

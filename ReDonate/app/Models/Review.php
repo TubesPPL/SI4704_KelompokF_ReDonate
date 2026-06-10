@@ -15,6 +15,8 @@ class Review extends Model
         'reviewee_id',
         'rating',
         'comment',
+        'reply',
+        'reply_at',
     ];
 
     public function claim()

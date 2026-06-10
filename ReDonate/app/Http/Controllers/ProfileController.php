@@ -24,8 +24,9 @@ class ProfileController extends Controller
         $activeItems = $user->items()->active()->get();
         $completedDonations = $user->items()->where('status', 'completed')->count();
         $averageRating = $user->reviewsReceived()->avg('rating') ?? 0;
+        $reviews = $user->reviewsReceived()->with(['reviewer', 'claim.item'])->latest()->get();
 
-        return view('profile.show', compact('user', 'activeItems', 'completedDonations', 'averageRating'));
+        return view('profile.show', compact('user', 'activeItems', 'completedDonations', 'averageRating', 'reviews'));
     }
 
     /**

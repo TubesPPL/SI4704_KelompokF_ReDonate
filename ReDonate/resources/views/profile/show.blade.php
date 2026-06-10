@@ -116,6 +116,118 @@
                     </div>
                 @endif
             </div>
+
+            <!-- Reviews Section -->
+            <div class="bg-white p-6 sm:p-8 shadow sm:rounded-lg space-y-6">
+                <h3 class="text-xl font-bold text-gray-900 border-b border-gray-100 pb-4 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    Ulasan & Rating ({{ $reviews->count() }})
+                </h3>
+
+                @if($reviews->count() > 0)
+                    <div class="space-y-6 divide-y divide-gray-100">
+                        @foreach($reviews as $review)
+                            <div class="pt-6 first:pt-0">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <img class="h-10 w-10 rounded-full object-cover shadow-sm border border-gray-100" 
+                                             src="{{ $review->reviewer->avatar ? Storage::url($review->reviewer->avatar) : 'https://ui-avatars.com/api/?name='.urlencode($review->reviewer->name).'&color=0D9488&background=CCFBF1' }}" 
+                                             alt="{{ $review->reviewer->name }}">
+                                        <div>
+                                            <a href="{{ route('profile.show', $review->reviewer->id) }}" class="font-bold text-gray-900 hover:text-teal-600 transition text-sm">
+                                                {{ $review->reviewer->name }}
+                                            </a>
+                                            <div class="flex items-center gap-1.5 mt-0.5">
+                                                <!-- Stars -->
+                                                <div class="flex text-amber-400">
+                                                    @for($i = 1; $i <= 5; $i++)
+                                                        <svg class="w-4 h-4 {{ $i <= $review->rating ? 'fill-current' : 'text-gray-200 stroke-current' }}" viewBox="0 0 20 20">
+                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                        </svg>
+                                                    @endfor
+                                                </div>
+                                                <span class="text-xs text-gray-400">•</span>
+                                                <span class="text-xs text-gray-500">{{ $review->created_at->diffForHumans() }}</span>
+                                                @if($review->claim && $review->claim->item)
+                                                    <span class="text-xs text-gray-400">•</span>
+                                                    <span class="text-xs text-gray-500">Barang: <span class="font-medium text-gray-700">{{ $review->claim->item->title }}</span></span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Actions (Edit/Delete) for reviewer -->
+                                    @auth
+                                        @if(Auth::id() === $review->reviewer_id)
+                                            <div class="flex items-center gap-2">
+                                                <a href="{{ route('reviews.edit', $review->id) }}" class="text-xs font-semibold text-teal-600 hover:text-teal-800 transition">Edit</a>
+                                                <span class="text-gray-300">|</span>
+                                                <form action="{{ route('reviews.destroy', $review->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus ulasan ini?')" class="inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-xs font-semibold text-red-600 hover:text-red-800 transition">Hapus</button>
+                                                </form>
+                                            </div>
+                                        @endif
+                                    @endauth
+                                </div>
+
+                                <p class="text-gray-700 text-sm mt-3 pl-12 leading-relaxed">
+                                    {{ $review->comment ?? 'Tidak ada komentar ulasan.' }}
+                                </p>
+
+                                <!-- Reply Section -->
+                                @if($review->reply)
+                                    <div class="mt-4 ml-12 p-4 bg-gray-50 rounded-xl border border-gray-100 flex gap-3">
+                                        <img class="h-8 w-8 rounded-full object-cover shadow-sm border border-gray-100" 
+                                             src="{{ $user->avatar ? Storage::url($user->avatar) : 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&color=0D9488&background=CCFBF1' }}" 
+                                             alt="{{ $user->name }}">
+                                        <div class="flex-1">
+                                            <div class="flex justify-between items-start gap-4">
+                                                <p class="font-bold text-gray-900 text-xs">Tanggapan dari {{ $user->name }} (Donatur)</p>
+                                                <!-- Delete reply if user is owner -->
+                                                @auth
+                                                    @if(Auth::id() === $user->id)
+                                                        <form action="{{ route('reviews.reply.destroy', $review->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus tanggapan ini?')" class="inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="text-xs font-semibold text-red-500 hover:text-red-700 transition">Hapus</button>
+                                                        </form>
+                                                    @endif
+                                                @endauth
+                                            </div>
+                                            <p class="text-gray-500 text-[10px] mt-0.5">{{ $review->reply_at ? \Carbon\Carbon::parse($review->reply_at)->diffForHumans() : '' }}</p>
+                                            <p class="text-gray-700 text-xs mt-2 leading-relaxed">{{ $review->reply }}</p>
+                                        </div>
+                                    </div>
+                                @elseif(Auth::id() === $user->id)
+                                    <!-- Form to reply (only shown to the reviewee) -->
+                                    <div class="mt-4 ml-12" x-data="{ openReply: false }">
+                                        <button @click="openReply = !openReply" class="text-xs font-semibold text-teal-600 hover:text-teal-800 flex items-center gap-1 transition">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
+                                            Balas Ulasan
+                                        </button>
+                                        
+                                        <form x-show="openReply" x-collapse action="{{ route('reviews.reply', $review->id) }}" method="POST" class="mt-3 bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-3">
+                                            @csrf
+                                            <textarea name="reply" rows="2" class="w-full border-gray-200 rounded-lg text-xs focus:ring-teal-500 focus:border-teal-500" placeholder="Tulis tanggapan Anda..." required></textarea>
+                                            <div class="flex justify-end gap-2">
+                                                <button type="button" @click="openReply = false" class="px-3 py-1.5 border border-gray-300 rounded text-xs font-medium text-gray-700 hover:bg-gray-50 transition">Batal</button>
+                                                <button type="submit" class="px-4 py-1.5 bg-teal-600 border border-transparent rounded text-xs font-bold text-white hover:bg-teal-700 transition">Kirim Balasan</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="bg-gray-50 rounded-xl p-8 text-center text-gray-500 border border-gray-100">
+                        <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <p class="text-sm font-medium">Belum ada ulasan yang diterima.</p>
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 </x-app-layout>

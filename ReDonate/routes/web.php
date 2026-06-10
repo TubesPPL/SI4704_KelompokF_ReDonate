@@ -39,6 +39,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Ulasan
     Route::get('/reviews/create/{claim}', [\App\Http\Controllers\ReviewController::class, 'create'])->name('reviews.create');
     Route::post('/reviews/{claim}', [\App\Http\Controllers\ReviewController::class, 'store'])->name('reviews.store');
+    Route::get('/reviews/{review}/edit', [\App\Http\Controllers\ReviewController::class, 'edit'])->name('reviews.edit');
+    Route::put('/reviews/{review}', [\App\Http\Controllers\ReviewController::class, 'update'])->name('reviews.update');
+    Route::delete('/reviews/{review}', [\App\Http\Controllers\ReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::post('/reviews/{review}/reply', [\App\Http\Controllers\ReviewController::class, 'reply'])->name('reviews.reply');
+    Route::delete('/reviews/{review}/reply', [\App\Http\Controllers\ReviewController::class, 'destroyReply'])->name('reviews.reply.destroy');
 
     // Chat
     Route::prefix('chat')->name('chat.')->group(function () {
