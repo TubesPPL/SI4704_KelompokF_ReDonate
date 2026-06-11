@@ -23,16 +23,23 @@ class DashboardController extends Controller
             'active_events'        => Event::where('status', 'active')->count(),
         ];
 
-        // Donasi selesai per bulan (12 bulan terakhir) untuk Chart.js
-        // Menggunakan strftime karena database SQLite tidak mendukung DATE_FORMAT (MySQL)
+        
+        $driver = DB::connection()->getDriverName();
+        if ($driver === 'sqlite') {
+            $monthSelect = "strftime('%Y-%m', updated_at) as month";
+        } else {
+            $monthSelect = "DATE_FORMAT(updated_at, '%Y-%m') as month";
+        }
+
+        
         $monthlyDonations = Claim::where('status', 'completed')
             ->where('updated_at', '>=', now()->subMonths(11)->startOfMonth())
-            ->select(DB::raw("strftime('%Y-%m', updated_at) as month"), DB::raw('count(*) as total'))
+            ->select(DB::raw($monthSelect), DB::raw('count(*) as total'))
             ->groupBy('month')
             ->orderBy('month')
             ->pluck('total', 'month');
 
-        // Isi bulan yang kosong agar 12 bulan lengkap
+        
         $labels = [];
         $data   = [];
         for ($i = 11; $i >= 0; $i--) {

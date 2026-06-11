@@ -10,8 +10,6 @@ Route::get('/', [WelcomeController::class, 'index'])->name('home');
 
 Route::get('/user/{id}', [ProfileController::class, 'show'])->name('profile.show');
 
-// Nanti tambahkan route katalog, detail item, event publik di sini
-
 // 2. Auth Routes
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');

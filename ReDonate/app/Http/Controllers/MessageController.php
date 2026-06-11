@@ -7,13 +7,18 @@ use App\Models\Message;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse; // menambahkan impor
+use Illuminate\View\View; // menambahan impor
 
 class MessageController extends Controller
 {
     /**
-     * Pastikan hanya donatur (pemilik barang) atau penerima (pembuat klaim) yang bisa mengakses
+     * hanya donatur atau penerima yang bisa mengakses.
+     *
+     * @param  \App\Models\Claim  $claim
+     * @return void
      */
-    private function authorizeChat(Claim $claim)
+    private function authorizeChat(Claim $claim): void
     {
         $userId = Auth::id();
         if ($claim->user_id !== $userId && $claim->item->user_id !== $userId) {
@@ -21,12 +26,18 @@ class MessageController extends Controller
         }
     }
 
+    /**
+     * menampilkan halaman obrolan (chat) berdasarkan klaim.
+     *
+     * @param  \App\Models\Claim  $claim
+     * @return \Illuminate\View\View
+     */
     public function show(Claim $claim)
     {
         $claim->load(['item.user', 'user']);
         $this->authorizeChat($claim);
 
-        // Tandai pesan dari lawan bicara sebagai sudah dibaca
+        // menandai semua pesan masuk dari lawan bicara sebagai sudah dibaca
         $claim->messages()
             ->where('sender_id', '!=', Auth::id())
             ->whereNull('read_at')
@@ -37,10 +48,18 @@ class MessageController extends Controller
         return view('chat.show', compact('claim', 'messages'));
     }
 
-    public function store(Request $request, Claim $claim)
+    /**
+     * menyimpan pesan baru ke dalam database.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Claim  $claim
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function store(Request $request, Claim $claim): JsonResponse
     {
         $this->authorizeChat($claim);
 
+        // memastikan klaim sudah disetujui
         if ($claim->status !== 'approved') {
             return response()->json(['error' => 'Klaim belum disetujui atau sudah selesai.'], 403);
         }
@@ -54,10 +73,10 @@ class MessageController extends Controller
             'body' => $validated['body'],
         ]);
 
-        // Tentukan siapa lawan bicara
+        // menentukan ID penerima pesan (lawan bicara)
         $receiverId = $claim->user_id === Auth::id() ? $claim->item->user_id : $claim->user_id;
 
-        // Kirim notifikasi menggunakan NotificationService
+        // mengirim notifikasi ke lawan bicara menggunakan NotificationService
         NotificationService::send(
             $receiverId,
             NotificationService::NEW_MESSAGE,
@@ -72,7 +91,14 @@ class MessageController extends Controller
         ]);
     }
 
-    public function poll(Request $request, Claim $claim)
+    /**
+     * Mengambil pesan-pesan terbaru secara asynchronous.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Claim  $claim
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function poll(Request $request, Claim $claim): JsonResponse
     {
         $this->authorizeChat($claim);
 
@@ -84,7 +110,7 @@ class MessageController extends Controller
             ->oldest()
             ->get();
 
-        // Tandai pesan dari lawan bicara sebagai sudah dibaca
+        // jika ada pesan baru, langsung tandai sebagai sudah dibaca
         if ($newMessages->isNotEmpty()) {
             $claim->messages()
                 ->where('id', '>', $lastId)
@@ -96,7 +122,13 @@ class MessageController extends Controller
         return response()->json($newMessages);
     }
 
-    public function markRead(Claim $claim)
+    /**
+     * memperbarui status pesan menjadi telah dibaca
+     *
+     * @param  \App\Models\Claim  $claim
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function markRead(Claim $claim): JsonResponse
     {
         $this->authorizeChat($claim);
 
