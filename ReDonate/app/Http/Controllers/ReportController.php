@@ -37,7 +37,8 @@ class ReportController extends Controller
             $reportableType = User::class;
         }
 
-        // Cek duplikasi pelaporan dalam 24 jam terakhir
+        // Mencegah pengguna melakukan spam laporan terhadap konten yang sama
+        // dengan membatasi satu laporan per objek dalam rentang 24 jam.
         $recentDuplicate = Report::where('user_id', Auth::id())
             ->where('reportable_type', $reportableType)
             ->where('reportable_id', $subject->id)
@@ -66,7 +67,9 @@ class ReportController extends Controller
 
         $reportableType = $validated['type'] === 'item' ? Item::class : User::class;
         
-        // 1. Cek Rate Limiting (Maks 5 laporan dalam 24 jam)
+        // 1. Rate limiting laporan:
+        // Setiap pengguna hanya diperbolehkan mengirim maksimal 5 laporan dalam periode 24 jam 
+        // untuk mengurangi penyalahgunaan fitur.
         $recentReportsCount = Report::where('user_id', Auth::id())
             ->where('created_at', '>=', now()->subDay())
             ->count();
@@ -95,7 +98,7 @@ class ReportController extends Controller
             'description' => $validated['reason'] === 'Lainnya' ? $validated['description'] : null,
         ]);
 
-        // Kirim notifikasi ke semua admin
+        // Notifikasi dikirim ke seluruh admin agar laporan dapat segera ditinjau dan ditindaklanjuti.
         $admins = User::where('role', 'admin')->get();
         foreach ($admins as $admin) {
             NotificationService::send(

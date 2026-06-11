@@ -33,7 +33,8 @@ class ReportController extends Controller
     {
         $report->load(['reporter', 'reportable']);
         
-        // Cek jika sedang direview oleh admin lain? Bisa tambahkan logika tapi untuk sekarang ubah ke reviewing jika pending
+        // Ketika laporan pertama kali dibuka oleh admin, status otomatis berubah menjadi "reviewing"
+        // sebagai indikator bahwa laporan sedang ditinjau.
         if ($report->status === 'pending') {
             $report->update(['status' => 'reviewing']);
         }
@@ -56,7 +57,8 @@ class ReportController extends Controller
             'admin_notes' => 'nullable|string|max:1000',
         ]);
 
-        // Simpan keputusan
+        // Simpan hasil review admin beserta catatan moderasi
+        // yang akan menjadi arsip penanganan laporan.
         $report->status = $validated['status'];
         $report->admin_notes = $validated['admin_notes'];
         $report->save();
@@ -69,7 +71,8 @@ class ReportController extends Controller
             $targetUser = $report->reportable->user;
         }
 
-        // Eksekusi Tindakan jika ditargetkan ke user dan status resolved
+        // Tindakan moderasi hanya dijalankan apabila laporan
+        // dinyatakan valid (resolved) dan memiliki target pengguna.
         if ($report->status === 'resolved' && $targetUser) {
             switch ($validated['action']) {
                 case 'warn_user':
@@ -80,7 +83,9 @@ class ReportController extends Controller
                         'Akun Anda menerima peringatan terkait aktivitas atau konten yang dilaporkan melanggar pedoman komunitas kami. Harap patuhi aturan agar akun Anda tetap aktif.'
                     );
                     break;
-                
+
+                // Menonaktifkan barang dari sistem agar tidak lagi
+                // terlihat atau dapat diklaim oleh pengguna lain.
                 case 'suspend_item':
                     if ($report->reportable_type === Item::class) {
                         $item = $report->reportable;
@@ -95,7 +100,8 @@ class ReportController extends Controller
                         );
                     }
                     break;
-
+                    
+                // Menonaktifkan akun untuk mencegah pengguna melanjutkan aktivitas di platform.
                 case 'ban_user':
                     $targetUser->is_banned = true;
                     $targetUser->is_verified = false;
