@@ -1,4 +1,9 @@
 <x-app-layout>
+     <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Wishlist Saya') }}
@@ -37,29 +42,108 @@
                             @else
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     @foreach($availableItems as $item)
-                                        <div class="border border-gray-100 rounded-lg overflow-hidden flex flex-col hover:shadow-md transition bg-white relative group">
+                                        <div x-data="{ showDelete: false }" class="border border-gray-100 rounded-lg overflow-hidden flex flex-col hover:shadow-md transition bg-white relative group">
                                             <div class="h-40 bg-gray-100 relative">
                                                 @if($item->images && count($item->images) > 0)
-                                                    <img src="{{ Storage::url($item->images[0]) }}" alt="{{ $item->title }}" class="w-full h-full object-cover">
-                                                @else
-                                                    <div class="w-full h-full flex items-center justify-center text-gray-400">
-                                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                                    </div>
-                                                @endif
-                                                <form action="{{ route('wishlist.destroy', $item) }}" method="POST" class="absolute top-2 right-2">
-                                                    @csrf @method('DELETE')
-                                                    <button type="submit" class="p-1.5 bg-white/80 backdrop-blur text-red-500 rounded-full hover:bg-red-50 transition" title="Hapus dari wishlist"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg></button>
-                                                </form>
+                                                    <img 
+                                                        src="{{ Storage::url($item->images[0]) }}" 
+                                                        alt="{{ $item->title }}" 
+                                                        class="w-full h-full object-cover"
+                                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                                    >
+
+                                                        <div class="w-full h-full hidden items-center justify-center text-gray-400 bg-gray-100">
+                                                            <div class="text-center">
+                                                                <svg class="w-10 h-10 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                                </svg>
+                                                                <p class="text-xs">Gambar tidak tersedia</p>
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <div class="w-full h-full flex items-center justify-center text-gray-400 bg-gray-100">
+                                                            <div class="text-center">
+                                                                <svg class="w-10 h-10 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                                </svg>
+                                                                <p class="text-xs">Gambar tidak tersedia</p>
+                                                            </div>
+                                                        </div>
+                                                    @endif
+                                           <button 
+                                                type="button"
+                                                @click="showDelete = true"
+                                                class="absolute top-2 right-2 p-2 bg-white/90 backdrop-blur text-red-500 rounded-full hover:bg-red-50 hover:text-red-700 transition shadow-sm" 
+                                                title="Hapus dari wishlist"
+                                            >
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
                                             </div>
                                             <div class="p-4 flex-1 flex flex-col">
                                                 <a href="{{ route('items.show', $item->slug) }}" class="text-sm font-bold text-gray-900 hover:text-teal-600 line-clamp-1">{{ $item->title }}</a>
-                                                <p class="text-xs text-gray-500 mt-1 mb-3">{{ $item->category->name }}</p>
-                                                <div class="mt-auto">
+                                                <p class="text-xs text-gray-500 mt-1 mb-3">{{ $item->category->name ?? 'Tanpa Kategori' }}
+                                                 </p>
+                                                 <span class="inline-flex items-center w-fit px-2 py-1 text-[10px] font-bold rounded-full bg-green-100 text-green-700 mb-3">
+                                                        Tersedia
+                                                    </span>
+                                                                                                <div class="mt-auto">
                                                     <form action="{{ route('claims.store', $item->slug) }}" method="POST">
                                                         @csrf
                                                         <input type="hidden" name="message" value="Saya tertarik dan membutuhkan barang ini.">
-                                                        <button type="submit" class="w-full py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded shadow-sm transition">Ajukan Klaim</button>
+                                                        <button type="submit" onclick="return confirm('Ajukan klaim untuk barang ini?')" class="w-full py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                                                            Ajukan Klaim
+                                                        </button>
                                                     </form>
+                                                </div>
+                                            </div>
+
+                                            <!-- MODAL HAPUS TARUH DI SINI -->
+                                            <div 
+                                                x-show="showDelete"
+                                                x-cloak
+                                                class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+                                            >
+                                                <div 
+                                                    @click.away="showDelete = false"
+                                                    class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6"
+                                                >
+                                                    <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-50 mx-auto mb-4">
+                                                        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                        </svg>
+                                                    </div>
+
+                                                    <h3 class="text-lg font-bold text-gray-900 text-center">
+                                                        Hapus dari Wishlist?
+                                                    </h3>
+
+                                                    <p class="text-sm text-gray-500 text-center mt-2">
+                                                        Barang ini akan dihapus dari daftar wishlist Anda.
+                                                    </p>
+
+                                                   <div class="flex justify-center gap-3 mt-6"> 
+                                                        <button 
+                                                            type="button"
+                                                            @click="showDelete = false"
+                                                            class="px-6 py-2.5 rounded-lg border border-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 transition"
+                                                        >
+                                                            Batal
+                                                        </button>
+
+                                                        <form action="{{ route('wishlist.destroy', $item) }}" method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+
+                                                            <button 
+                                                                type="submit"
+                                                                class="px-6 py-2.5 rounded-lg bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition"
+                                                            >
+                                                                Hapus
+                                                            </button>
+                                                        </form>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -91,10 +175,16 @@
                                             <div class="p-4 flex-1 flex flex-col">
                                                 <p class="text-sm font-bold text-gray-700 line-clamp-1">{{ $item->title }}</p>
                                                 <div class="mt-4 flex justify-between items-center">
-                                                    <form action="{{ route('wishlist.destroy', $item) }}" method="POST">
-                                                        @csrf @method('DELETE')
-                                                        <button type="submit" class="text-xs text-red-600 hover:underline font-medium">Hapus</button>
-                                                    </form>
+                                                  <button 
+                                                    type="button"
+                                                    @click="showDelete = true"
+                                                    class="absolute top-2 right-2 p-2 bg-white/90 backdrop-blur text-red-500 rounded-full hover:bg-red-50 hover:text-red-700 transition shadow-sm z-10" 
+                                                    title="Hapus dari wishlist"
+                                                >
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    </svg>
+                                                </button>
                                                 </div>
                                             </div>
                                         </div>
