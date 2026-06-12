@@ -47,24 +47,60 @@
                     </div>
 
                     <div class="bg-white p-6 shadow-sm sm:rounded-2xl border border-gray-100">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2">Target & Periode</h3>
-                        
+    <h3 class="text-lg font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2">
+        Target & Periode
+    </h3>
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                             <div>
                                 <x-input-label for="start_date" value="Tanggal Mulai *" />
-                                <x-text-input id="start_date" name="start_date" type="date" class="mt-1 block w-full text-sm" x-model="startDate" min="{{ date('Y-m-d') }}" required />
+
+                                <x-text-input
+                                    id="start_date"
+                                    name="start_date"
+                                    type="date"
+                                    class="mt-1 block w-full text-sm"
+                                    x-model="startDate"
+                                    min="{{ date('Y-m-d') }}"
+                                    required
+                                />
+
                                 <x-input-error class="mt-2" :messages="$errors->get('start_date')" />
                             </div>
+
+                            <!-- Tanggal Selesai -->
                             <div>
                                 <x-input-label for="end_date" value="Tanggal Selesai *" />
-                                <x-text-input id="end_date" name="end_date" type="date" class="mt-1 block w-full text-sm" x-model="endDate" :min="startDate || '{{ date('Y-m-d') }}'" required />
+
+                                <x-text-input
+                                    id="end_date"
+                                    name="end_date"
+                                    type="date"
+                                    class="mt-1 block w-full text-sm"
+                                    x-model="endDate"
+                                    min="{{ date('Y-m-d') }}"
+                                    required
+                                />
+
                                 <x-input-error class="mt-2" :messages="$errors->get('end_date')" />
                             </div>
+
                         </div>
 
+                        <!-- Target Barang -->
                         <div class="mb-4">
                             <x-input-label for="target_items" value="Target Jumlah Barang Terkumpul *" />
-                            <x-text-input id="target_items" name="target_items" type="number" min="1" class="mt-1 block w-full" x-model="target" required />
+
+                            <x-text-input
+                                id="target_items"
+                                name="target_items"
+                                type="number"
+                                min="1"
+                                class="mt-1 block w-full"
+                                x-model="target"
+                                required
+                            />
+
                             <x-input-error class="mt-2" :messages="$errors->get('target_items')" />
                         </div>
                     </div>
