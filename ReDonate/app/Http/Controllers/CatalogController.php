@@ -60,7 +60,9 @@ class CatalogController extends Controller
         
         // Return Partial View untuk AJAX Fetch (Alpine.js)
         if ($request->ajax() || $request->wantsJson()) {
-            return view('catalog.partials.grid', compact('items'))->render();
+            return response()
+                ->view('catalog.partials.grid', compact('items'))
+                ->header('Vary', 'X-Requested-With');
         }
 
         $categories = Category::all();

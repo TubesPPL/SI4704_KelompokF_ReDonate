@@ -126,7 +126,7 @@
                     </div>
 
                     <!-- Grid Container (diisi oleh AJAX) -->
-                    <div id="catalog-grid" x-show="!loading" x-html="gridHtml">
+                    <div id="catalog-grid" x-show="!loading">
                         @include('catalog.partials.grid')
                     </div>
                 </div>
@@ -145,7 +145,6 @@
         function catalogFilter() {
             return {
                 loading: false,
-                gridHtml: '', // Initial HTML is loaded via blade directly, then replaced
                 filters: {
                     categories: [],
                     conditions: [],
@@ -155,16 +154,16 @@
                     sort: 'newest'
                 },
                 init() {
-                    // Set up Alpine to intercept pagination links inside the grid
-                    this.$watch('gridHtml', () => {
-                        this.$nextTick(() => {
-                            const links = document.querySelectorAll('.pagination-container a');
-                            links.forEach(link => {
-                                link.addEventListener('click', (e) => {
-                                    e.preventDefault();
-                                    this.fetchUrl(link.href);
-                                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                                });
+                    this.bindPaginationLinks();
+                },
+                bindPaginationLinks() {
+                    this.$nextTick(() => {
+                        const links = document.querySelectorAll('.pagination-container a');
+                        links.forEach(link => {
+                            link.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                this.fetchUrl(link.href);
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
                             });
                         });
                     });
@@ -208,11 +207,8 @@
                     })
                     .then(response => response.text())
                     .then(html => {
-                        this.gridHtml = html;
-                        // Hapus konten original dari blade jika masih ada
-                        if(document.querySelector('#catalog-grid > div:not([x-html])')) {
-                            document.getElementById('catalog-grid').innerHTML = '';
-                        }
+                        document.getElementById('catalog-grid').innerHTML = html;
+                        this.bindPaginationLinks();
                         this.loading = false;
                     })
                     .catch(error => {
