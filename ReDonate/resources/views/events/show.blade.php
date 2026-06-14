@@ -62,9 +62,57 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-12">
             
             <!-- Left Content -->
-            <div class="flex-1">
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Tentang Event Ini</h2>
+             <div class="flex-1">
+                    @if($event->status === 'completed')
+                @php
+                    $percentage = $event->target_items > 0
+                        ? min(100, round(($event->items_count / $event->target_items) * 100))
+                        : 0;
+                @endphp
+
+                <div class="bg-green-50 border border-green-200 rounded-xl p-6 mb-8">
+                    <h3 class="text-xl font-bold text-green-800 mb-3">
+                        Laporan Hasil Event
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="bg-white rounded-lg p-4 border border-green-100">
+                            <p class="text-sm text-gray-500">Target Donasi</p>
+                            <p class="text-2xl font-bold text-green-700">
+                                {{ $event->target_items }}
+                            </p>
+                        </div>
+
+                        <div class="bg-white rounded-lg p-4 border border-green-100">
+                            <p class="text-sm text-gray-500">Barang Terkumpul</p>
+                            <p class="text-2xl font-bold text-green-700">
+                                {{ $event->items_count }}
+                            </p>
+                        </div>
+
+                        <div class="bg-white rounded-lg p-4 border border-green-100">
+                            <p class="text-sm text-gray-500">Pencapaian</p>
+                            <p class="text-2xl font-bold text-green-700">
+                                {{ $percentage }}%
+                            </p>
+                        </div>
+                    </div>
+
+                        <p class="text-green-700">
+                            Event ini telah selesai pada
+                            <strong>{{ $event->end_date->format('d M Y') }}</strong>
+                            dengan total
+                            <strong>{{ $event->items_count }}</strong>
+                            barang terkumpul dari target
+                            <strong>{{ $event->target_items }}</strong>
+                            barang.
+                        </p>
+                </div>
+            @endif
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
+                                <h2 class="text-2xl font-bold text-gray-900 mb-4">Tentang Event Ini</h2>
+
                     <div class="prose prose-teal max-w-none text-gray-600 leading-relaxed">
                         {!! nl2br(e($event->description)) !!}
                     </div>

@@ -10,7 +10,9 @@ class CatalogController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Item::with(['category', 'user'])->active();
+        $query = Item::with(['category', 'user'])
+            ->active()
+            ->whereNull('event_id');
 
         // Filter Kategori
         if ($request->has('categories') && !empty($request->categories)) {
