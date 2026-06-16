@@ -203,7 +203,7 @@
                                 @elseif(Auth::id() === $user->id)
                                     <!-- Form to reply (only shown to the reviewee) -->
                                     <div class="mt-4 ml-12" x-data="{ openReply: false }">
-                                        <button @click="openReply = !openReply" class="text-xs font-semibold text-teal-600 hover:text-teal-800 flex items-center gap-1 transition">
+                                        <button dusk="reply-button-{{ $review->id }}" @click="openReply = !openReply" class="text-xs font-semibold text-teal-600 hover:text-teal-800 flex items-center gap-1 transition">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
                                             Balas Ulasan
                                         </button>
