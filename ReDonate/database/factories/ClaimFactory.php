@@ -17,13 +17,17 @@ class ClaimFactory extends Factory
      * @return array<string, mixed>
      */
     public function definition(): array
-    {
+    {   
+
+        $randomDate = fake()->optional()->dateTimeBetween('+1 days', '+14 days');
+        
         return [
             'item_id' => Item::factory(),
             'user_id' => User::factory(),
             'message' => fake()->paragraph(),
             'status' => fake()->randomElement(['pending', 'approved', 'rejected', 'completed']),
-            'pickup_date' => fake()->optional()->dateTimeBetween('+1 days', '+14 days')->format('Y-m-d'),
+            // 'pickup_date' => fake()->optional()->dateTimeBetween('+1 days', '+14 days')->format('Y-m-d'),
+            'pickup_date' => $randomDate ? $randomDate->format('Y-m-d') : null,
             'notes' => fake()->optional()->sentence(),
         ];
     }
